@@ -97,6 +97,7 @@ class PSDisplay(object):
         """
         # get relevant kwargs
         indperiods = kwargs.get("periods",False)
+        starttime = kwargs.get('starttime', None)
         
         # get figure settings
         figdict = get_figure_settings('heatplot')
@@ -157,7 +158,7 @@ class PSDisplay(object):
         # plot periods if True
         
         if indperiods:
-            plist = self.find24hourperiods()
+            plist = self.find24hourperiods(starttime = starttime)
             for p in plist:
                 self.plotIndicator(ax, [p,p], [ylim[0], ylim[1]],'b--')
                 
@@ -482,7 +483,26 @@ class PSDisplay(object):
         """
         pass
     
-    def find24hourperiods(self,):
+    def find24hourperiods(self,starttime = None):
+        """
+        Returns indices in data for 24 hour periods
+        starting from starttime
+        
+        Parameters
+        ----------
+        starttime : str 
+            time in HH:MM:SS
+            
+        Returns
+        -------
+        indices : list of integers
+            list of indices
+            
+        """
+        if starttime:
+            pass
+        else:
+            starttime = '00:00:00'
         datetimes = []
         for i in range(0, len(self._smps.time['data'])):
             datetimes.append( self._smps.date['data'][i] + ' ' + self._smps.time['data'][i] )
@@ -491,7 +511,7 @@ class PSDisplay(object):
 
         indices = []
         for day in np.unique(self._smps.date['data']):
-            newtime = tt.convertTime([day + ' 00:00:00'],'%d/%m/%Y %H:%M:%S','%Y.%m.%d %H:%M:%S')
+            newtime = tt.convertTime([day + ' ' + starttime],'%d/%m/%Y %H:%M:%S','%Y.%m.%d %H:%M:%S')
             ind = tt.findNearestDate(times, newtime[0])
             indices.append( ind[0])
 
