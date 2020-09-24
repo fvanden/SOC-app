@@ -13,7 +13,7 @@ mysmps.util.stack_ps
 ==================
 
 Functions for working with particle sizer instances
-    
+
 
 Created on Tue Sep 22 13:56 2020
 
@@ -21,33 +21,38 @@ Created on Tue Sep 22 13:56 2020
 
 Revision history:   22.09.2020 - Created
                                - stack_ps added
-                    23.09.2020 - stacking finished, added fill_time to stack_ps 
-                
+                    23.09.2020 - stacking finished, added fill_time to stack_ps
+                                debugging of stack_ps (sample problem)
+
 """
 
-def stack_ps(ps1, ps2, keep_unique = False, fill_time = False):
+def stack_ps(ps1, ps2, keep_unique = False, fill_time = False, message = True):
     """
     Combine two particle sizer instances into one.
-    
+
     Parameters
     ----------
     ps1 : ParticleSizer
         mypysmps.core.smps.ParticleSizer object
-        
+
     ps2 : ParticleSizer
         mypysmps.core.smps.ParticleSizer object
-        
+
     keep_unique : bool
         if set to True, attributes which are present in
         one instance but not in the other are kept, if
         False, only attributes common to both instances
         are preserved
-        
+
     fill_time : bool
-        if set to True, a time gap between the two 
+        if set to True, a time gap between the two
         particle sizer instances is filled with NaNs
-        
-        
+
+    message : bool
+        if set to True, helpful warning messages will
+        be printed
+
+
     Returns
     -------
     new_ps : ParticleSizer
@@ -55,34 +60,35 @@ def stack_ps(ps1, ps2, keep_unique = False, fill_time = False):
         data from both input objects
     """
     # create deepcopies to avoid changing original instances
-    
+
     ps1 = copy.deepcopy(ps1)
     ps2 = copy.deepcopy(ps2)
-    
+
     # create datetime information in PS instances
-    
+
     try:
         _ = getattr(ps1, "datetime")
     except AttributeError:
         ps1.createTimeDate()
-        
-    try: 
+
+    try:
         _ = getattr(ps2, "datetime")
     except AttributeError:
         ps2.createTimeDate()
-        
+
     # check time resolutions
     res1 = (dt.datetime.strptime(ps1.datetime['data'][1], ps1.datetime['units']) - dt.datetime.strptime(ps1.datetime['data'][0], ps1.datetime['units'])).seconds
     res2 = (dt.datetime.strptime(ps2.datetime['data'][1], ps2.datetime['units']) - dt.datetime.strptime(ps2.datetime['data'][0], ps2.datetime['units'])).seconds
-    
+
     if abs(res1-res2) > 60:
-        print( ("warning: resolutions differ %d seconds")%(abs(res1-res2)) )
-         
+        if message:
+            print( ("warning: resolutions differ %d seconds")%(abs(res1-res2)) )
+
     # check if ps1 is "older" than ps2
-    
+
     reversed_order = False
     cut = None
-    
+
     if dt.datetime.strptime(ps1.datetime['data'][-1], ps1.datetime['units']) < dt.datetime.strptime(ps2.datetime['data'][0], ps2.datetime['units']):
         # ps2 starts after ps1 ends
         timediff = (dt.datetime.strptime(ps2.datetime['data'][0], ps2.datetime['units']) - dt.datetime.strptime(ps1.datetime['data'][-1], ps1.datetime['units'])).seconds
@@ -92,12 +98,12 @@ def stack_ps(ps1, ps2, keep_unique = False, fill_time = False):
         timediff = (dt.datetime.strptime(ps1.datetime['data'][0], ps1.datetime['units']) - dt.datetime.strptime(ps2.datetime['data'][-1], ps2.datetime['units'])).seconds
     else:
         # yikes! The particle sizer instances have overlapping data
-        # it is assumed that ps2 data replaces ps1 data starting 
+        # it is assumed that ps2 data replaces ps1 data starting
         # from the overlapping time
-        cut, cutdate = tt.findNearestDate(ps1.datetime['data'], ps2.datetime['data'][0])   
+        cut, cutdate = tt.findNearestDate(ps1.datetime['data'], ps2.datetime['data'][0])
         fill_time = False
-        
-    print(timediff, 1.5*res1)
+
+    #print(timediff, 1.5*res1)
     # check if filling is required
     if fill_time is True:
         # check time difference
@@ -135,8 +141,9 @@ def stack_ps(ps1, ps2, keep_unique = False, fill_time = False):
                 ps1.date['data'] = np.append(ps1.date['data'], datelist)
             else:
                 fill_time = False
-        
-        
+
+    if message:
+        print("reversed order:", reversed_order)
     # check which attributes are similar in both instances
     if reversed_order:
         # ps1 starts after ps2 ends
@@ -146,27 +153,27 @@ def stack_ps(ps1, ps2, keep_unique = False, fill_time = False):
                 afield = getattr(new_ps, attribute)
                 if attribute == 'diameter':
                     st11, st12, st21, st22, diamlist = check_diameters(ps1.diameter['data'], ps2.diameter['data'])
-                              
+
                     for var in new_ps.data['variables']:
                         if fill_time is True:
-                            add = np.ma.zeros((ps2.data[var]['data'].shape[0],len(date_list))) 
+                            add = np.ma.zeros((ps2.data[var]['data'].shape[0],len(date_list)))
                             add[:] = np.nan
                             newdata = np.append(ps2.data[var]['data'],add,axis=1)
                             ps2.data[var]['data'] = newdata
-                            
+
                         sh1 = ps1.data[var]['data'].shape
                         sh2 = ps2.data[var]['data'].shape
                         newfields = (len(diamlist) ,sh1[1] + sh2[1])
                         new_field = np.ma.zeros(newfields)
                         new_field[:] = np.ma.masked
-                        
+
                         new_field[st21:st22, 0:ps2.data[var]['data'][:,:cut].shape[1]] = ps2.data[var]['data'][:,:cut]
                         new_field[st11:st12, ps2.data[var]['data'][:,:cut].shape[1]:] = ps1.data[var]['data']
-                        
+
                         new_ps.data[var]['data'] = new_field
-                        
+
                     afield['data'] = diamlist
-                    
+
                 elif attribute == 'data':
                     # data has been appended with diameters
                     pass
@@ -178,14 +185,16 @@ def stack_ps(ps1, ps2, keep_unique = False, fill_time = False):
                         if attribute == 'header':
                             pass
                         else:
-                            print( ("Could not append %s attribute")%(attribute) )
+                            if message:
+                                print( ("Could not append %s attribute")%(attribute) )
                     try:
                         data_ps2 = field_ps2['data']
                         data_ps1 = field_ps1['data']
                         afield['data'] = np.append(data_ps2[:cut], data_ps1)
                     except:
-                        print( ("Could not append %s attribute")%(attribute) )
-                   
+                        if message:
+                            print( ("Could not append %s attribute")%(attribute) )
+
             else:
                 if keep_unique:
                     newattribute = getattr(ps1,attribute)
@@ -200,8 +209,8 @@ def stack_ps(ps1, ps2, keep_unique = False, fill_time = False):
                     pass
                 else:
                     delattr(new_ps, attribute)
-            
-            
+
+
     else:
         # ps2 starts after ps1 ends
         new_ps = copy.deepcopy(ps1)
@@ -210,27 +219,27 @@ def stack_ps(ps1, ps2, keep_unique = False, fill_time = False):
                 afield = getattr(new_ps, attribute)
                 if attribute == 'diameter':
                     st11, st12, st21, st22, diamlist = check_diameters(ps1.diameter['data'], ps2.diameter['data'])
-                              
+
                     for var in new_ps.data['variables']:
                         if fill_time is True:
-                            add = np.ma.zeros((ps1.data[var]['data'].shape[0],len(date_list))) 
+                            add = np.ma.zeros((ps1.data[var]['data'].shape[0],len(date_list)))
                             add[:] = np.nan
                             newdata = np.append(ps1.data[var]['data'],add,axis=1)
                             ps1.data[var]['data'] = newdata
-                            
+
                         sh1 = ps1.data[var]['data'].shape
                         sh2 = ps2.data[var]['data'].shape
                         newfields = (len(diamlist) ,sh1[1] + sh2[1])
                         new_field = np.ma.zeros(newfields)
                         new_field[:] = np.ma.masked
-                        
+
                         new_field[st11:st12, 0:ps1.data[var]['data'][:,:cut].shape[1]] = ps1.data[var]['data'][:,:cut]
                         new_field[st21:st22, ps1.data[var]['data'][:,:cut].shape[1]:] = ps2.data[var]['data']
-                        
+
                         new_ps.data[var]['data'] = new_field
-                        
+
                     afield['data'] = diamlist
-                    
+
                 elif attribute == 'data':
                     # data has been appended with diameters
                     pass
@@ -242,14 +251,16 @@ def stack_ps(ps1, ps2, keep_unique = False, fill_time = False):
                         if attribute == 'header':
                             pass
                         else:
-                            print( ("Could not append %s attribute")%(attribute) )
+                            if message:
+                                print( ("Could not append %s attribute")%(attribute) )
                     try:
                         data_ps2 = field_ps2['data']
                         data_ps1 = field_ps1['data']
                         afield['data'] = np.append(data_ps1[:cut], data_ps2)
                     except:
-                        print( ("Could not append %s attribute")%(attribute) )
-                    
+                        if message:
+                            print( ("Could not append %s attribute")%(attribute) )
+
             else:
                 if keep_unique:
                     newattribute = getattr(ps2,attribute)
@@ -264,20 +275,23 @@ def stack_ps(ps1, ps2, keep_unique = False, fill_time = False):
                     pass
                 else:
                     delattr(new_ps, attribute)
-                    
-    print(fill_time)
-    
+
+    new_ps.sample['data'] = np.arange(1.0, len(new_ps.datetime['data'])+1)
+
+    if message:
+        print('filltime: ', fill_time)
+
     return new_ps
 
 def check_diameters(diameter1, diameter2):
     """
     """
-    
+
     """
     nlist1 = []
     nlist2 = []
     olist = []
-    
+
     for i in range(0, len(diameter1)):
         if diameter1[i] in diameter2:
             olist.append(diameter1[i])
@@ -289,20 +303,20 @@ def check_diameters(diameter1, diameter2):
             olist.append(diameter2[i])
         else:
             nlist1.append(diameter2[i])
-            
+
     """
     diamlist = np.append(diameter1, diameter2)
     diamlist.sort()
     diamlist = np.unique(diamlist)
-    
+
     st11 = abs(diamlist - diameter1[0]).argmin()
     st12 = abs(diamlist - diameter1[-1]).argmin()+1
     st21 = abs(diamlist - diameter2[0]).argmin()
     st22 = abs(diamlist - diameter2[-1]).argmin()+1
-    
+
     if st12 >= len(diamlist):
         st12 = None
     if st22 >= len(diamlist):
         st22 = None
-            
+
     return st11, st12, st21, st22, diamlist
