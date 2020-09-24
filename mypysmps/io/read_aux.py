@@ -12,7 +12,8 @@ mysmps.io.read_aux
 ==================
 
 Auxiliary functions for reading of files:
-    file_to_config
+    smps_file_to_config
+    opc_file_to_config
 
 Created on Thu Jul 17 11:05 2020
 
@@ -21,14 +22,15 @@ Created on Thu Jul 17 11:05 2020
 Revision history:   15.07.2020 - Created
                     20.07.2020 - Completed until working version
                     27.07.2020 - Resolved reading issues text files with exceptions
+                    14.09.2020 - Added OPC reading
                     
 
 """
 
-def file_to_config(datadict, metadatadict, header, fileorg = 'AIM', **kwargs):
+def smps_file_to_config(datadict, metadatadict, header, fileorg = 'AIM', **kwargs):
     """
-    Organises data read from file into metadata dictionaries 
-    from config
+    Unfortunately a rather long script that organises data read 
+    from file into metadata dictionaries from config
     
     Parameters
     ----------
@@ -50,7 +52,7 @@ def file_to_config(datadict, metadatadict, header, fileorg = 'AIM', **kwargs):
         all of the data and variables in the format specified in the configuration files
     
     
-    """
+    """      
     
     # date and time
     date = get_metadata('date')
@@ -310,3 +312,63 @@ def file_to_config(datadict, metadatadict, header, fileorg = 'AIM', **kwargs):
     comment['data'] = datadict[filenaming]
     
     return field, diameter, date, time, sample, temperature, pressure, relative_humidity, mean_free_path, viscosity, scan_time, retrace_time, scan_resolution, scans_per_sample, sheath_flow, aerosol_flow, bypass_flow, low_voltage, high_voltage, lower_size, upper_size, density, td05, tf, D50, median, mean, geo_mean, mode, geo_std_dev, total_concentration, title, user_name, sample_id, instrument_id, lab_id, leak_test_rate, instrument_errors, comment
+
+def opc_file_to_config(datadict, metadatadict, header, fileorg = 'OPC', **kwargs):
+    """
+    Unfortunately a rather long script that organises data read 
+    from file into metadata dictionaries from config
+    
+    Parameters
+    ----------
+    datadict : dict 
+        dictionary with data read from file
+    
+    metadatadict : dict
+        dictionary with metadata read from file
+        
+    header : list
+        file header
+        
+    fileorg : str
+        organisation of the file
+        
+    Returns
+    -------
+    metadatadictionaries : dict
+        all of the data and variables in the format specified in the configuration files
+    
+    
+    """  
+    # TODO: convert SFR in ml/s to aerosol flow L/s
+    outdict = {}
+    
+    variables = ['time','duration','latitude','longitude','fix_time', 'temperature','relative_humidity']
+    for variable in variables:   
+        outdict[variable] = get_metadata(variable)
+        filenaming =  _FIELD_MAPPING[fileorg][variable]
+        try:
+            _ = datadict[filenaming]
+            try:
+                outdict[variable]['data'] = [float(i) for i in datadict[filenaming]]
+            except ValueError:
+                outdict[variable]['data'] = [i for i in datadict[filenaming]]
+        except KeyError:
+            pass
+        
+    diameter = get_metadata('diameter')
+    diameter['data'] = [0.35, 0.46, 0.66, 1.0, 1.3, 1.7, 2.3, 3.0, 4.0, 5.2, 6.5, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 25.0, 28.0, 31.0, 34.0, 37.0, 40.0]
+    
+    bins = ["bin0", "bin1", "bin2", "bin3", "bin4", "bin5", "bin6", "bin7", "bin8", "bin9", "bin10", "bin11", "bin12", "bin13", "bin14", "bin15", "bin16", "bin17", "bin18", "bin19", "bin20", "bin21", "bin22", "bin23"]
+    
+    data = []
+    for abin in bins:
+        data.append([float(i) for i in datadict[abin]])
+        
+    field = {}
+    datafield = _DEFAULT_VARIABLES['Raw Counts']['Number']
+    field[datafield] = get_metadata(datafield)
+    field[datafield]['data'] = np.ma.asarray(data)
+    
+    outdict['data'] = field
+        
+    return outdict

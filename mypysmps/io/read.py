@@ -4,8 +4,8 @@
 import gzip
 import netCDF4
 
-from .csv_read import read_aim_csv
-from .txt_read import read_aim_txt
+from .csv_read import read_aim_csv, read_opc_csv
+from .txt_read import read_aim_txt, read_opc_txt
 #################
 """
 mypysmps.io.read
@@ -67,11 +67,22 @@ def read(filename, fileorg = 'AIM', **kwargs):
     
     # CSV
     if filetype == 'CSV':
-        return read_aim_csv(filename, fileorg = fileorg, **kwargs)
+        if fileorg == 'AIM':
+            return read_aim_csv(filename, fileorg = fileorg, **kwargs)
+        elif fileorg == 'OPC':
+            return read_opc_csv(filename, fileorg = fileorg, **kwargs)
+        else:
+            raise TypeError('Unknown or unsupported file organisation: ' + fileorg)
     
     # TXT
     if filetype == 'TXT':
-        return read_aim_txt(filename, fileorg = fileorg, **kwargs)
+        if fileorg == 'AIM':
+            return read_aim_txt(filename, fileorg = fileorg, **kwargs)
+        if fileorg == 'OPC':
+            return read_opc_txt(filename, fileorg = fileorg, **kwargs)
+        else:
+            raise TypeError('Unknown or unsupported file organisation: ' + fileorg)
+
         
     raise TypeError('Unknown or unsupported file format: ' + filetype)
     
@@ -121,6 +132,11 @@ def determine_filetype(filename):
     
     # txt
     txt_signature = "txt"
+    if filename[-3:] == txt_signature:
+        return "TXT"
+    
+    # txt
+    txt_signature = "TXT"
     if filename[-3:] == txt_signature:
         return "TXT"
         

@@ -6,8 +6,8 @@ import csv
 from csv import reader
 
 from ..core.smps import SMPS
-from ..config import get_metadata
-from .read_aux import file_to_config
+from ..config import get_metadata, get_instrument_header
+from .read_aux import smps_file_to_config, opc_file_to_config
 #################
 
 """
@@ -60,7 +60,7 @@ def read_aim_csv(filename, fileorg = 'AIM', **kwargs):
     with open(filename, encoding = encoding, newline='') as csvfile:
         # get dialect from file
         try:
-            dialect = csv.Sniffer().sniff(csvfile.read(2048), delimiters=',:. ')
+            dialect = csv.Sniffer().sniff(csvfile.read(2048), delimiters=',:.; ')
             delimiter = dialect.delimiter
         except:
             delimiter = ','
@@ -157,7 +157,7 @@ def read_aim_csv(filename, fileorg = 'AIM', **kwargs):
     # create new file_to_config for differently organised files
     # TODO: smart way to identify which file_to_config function is needed
     
-    datadict, diameter, date, time, sample,temperature, pressure, relative_humidity, mean_free_path, viscosity, scan_time, retrace_time, scan_resolution, scans_per_sample, sheath_flow, aerosol_flow, bypass_flow, low_voltage, high_voltage, lower_size, upper_size, density, td05, tf, D50, median, mean, geo_mean, mode, geo_std_dev, total_concentration, title, user_name, sample_id, instrument_id, lab_id, leak_test_rate, instrument_errors, comment = file_to_config(datadict, metadatadict, header,fileorg = fileorg)
+    datadict, diameter, date, time, sample,temperature, pressure, relative_humidity, mean_free_path, viscosity, scan_time, retrace_time, scan_resolution, scans_per_sample, sheath_flow, aerosol_flow, bypass_flow, low_voltage, high_voltage, lower_size, upper_size, density, td05, tf, D50, median, mean, geo_mean, mode, geo_std_dev, total_concentration, title, user_name, sample_id, instrument_id, lab_id, leak_test_rate, instrument_errors, comment = smps_file_to_config(datadict, metadatadict, header,fileorg = fileorg)
     
     
     # write to SMPS
@@ -166,3 +166,71 @@ def read_aim_csv(filename, fileorg = 'AIM', **kwargs):
 
     
 
+def read_opc_csv(filename, fileorg = 'OPC', **kwargs):
+    """
+    Reads OPC data from a csv file
+    
+    Parameters
+    ----------
+    filename : str
+        path and name of file to read
+        
+    fileorg : str
+        different file organisations can be found in the default_config
+        for new filetypes add mappings here and specify the filetype
+        
+    kwargs : 
+        metadata, dict : user defined metadata - DEFAULT: taken from file
+        header, list : user defined header - DEFAULT: taken from mypysmps.default_config file
+        delimiter, str : user defined delimiter - DEFAULT: taken from file
+        
+    Returns
+    -------
+    smps : smps
+        mysmps.core.smps object
+    """
+    
+    header = get_instrument_header('OPC')
+    
+    metadata = kwargs.get("metadata", None)
+    header = kwargs.get("header", header)
+    delimiter = kwargs.get("delimiter", None)
+    encoding = kwargs.get("encoding", None)
+    
+    with open(filename, encoding = encoding, newline='') as csvfile:
+        # get dialect from file
+        try:
+            dialect = csv.Sniffer().sniff(csvfile.read(2048), delimiters=',:.; ')
+            delimiter = dialect.delimiter
+        except:
+            delimiter = ';'
+            
+    data = []
+    # open file in read mode
+    
+    try:
+        with open(filename, encoding = encoding, newline='') as read_obj:
+            # pass the file object to reader() to get the reader object
+            csv_reader = csv.reader(read_obj, delimiter=delimiter)
+            # Iterate over each line in the csv using reader object
+            for i, row in enumerate(csv_reader):    
+                data.append(row)
+    except UnicodeDecodeError: # try reading with different encoding
+        with open(filename, encoding = 'iso8859_15', newline='') as read_obj:
+            # pass the file object to reader() to get the reader object
+            csv_reader = csv.reader(read_obj, delimiter=delimiter)
+             # Iterate over each line in the csv using reader object
+            for i, row in enumerate(csv_reader):
+                data.append(row)
+                
+    # organise data in dict
+    
+    datadict = {}
+    for hname in header:
+        datadict[hname] = []
+
+    for row in range(0,len(data)):
+        for column in range(0,len(data[row])):
+            datadict[header[column]].append(data[row][column])
+            
+    return opc_file_to_config(datadict, metadata, header)

@@ -101,10 +101,16 @@ mass_cumulative_percentage_concentration = 'mass_cumulative_percentage_concentra
 
 raw_counts = 'raw_counts'
 
+particulate_matter1 = 'particulate_matter1'
+particulate_matter2_5 = 'particulate_matter2_5'
+particulate_matter10 = 'particulate_matter10'
+
 # instrument field names
 
 date = 'date'
 time = 'time'
+fix_time = 'fix_time'
+datetime = 'datetime'
 diameter = 'diameter'
 temperature = 'temperature'
 pressure = 'pressure'
@@ -127,6 +133,15 @@ td05 = 'td+05'
 tf = 'tf' 
 D50 = 'D50' 
 neutralizer_status = 'neutralizer_status'
+laser_status = 'laser_status'
+MeanToFBin1 = 'MeanToFBin1'
+MeanToFBin3 = 'MeanToFBin3'
+MeanToFBin5 = 'MeanToFBin5'
+MeanToFBin7 = 'MeanToFBin7'
+reject_glitch = 'reject_glitch'
+reject_long_TOF = 'reject_long_TOF'
+reject_ratio = 'reject_ratio'
+reject_count_OOR = 'reject_count_OOR'
 median = 'median'
 mean = 'mean'
 geo_mean = 'geo_mean'
@@ -193,9 +208,18 @@ DEFAULT_FIELD_NAMES = {
     'volume_cumulative_percentage_concentration' : volume_cumulative_percentage_concentration,
     'mass_cumulative_percentage_concentration' : mass_cumulative_percentage_concentration,
     
+    'raw_counts' : raw_counts, 
+    
+    'particulate_matter1' : particulate_matter1,
+    'particulate_matter2_5' : particulate_matter2_5,
+    'particulate_matter10' : particulate_matter10,
+
+    
     # instrument field names
     'date': date,
     'time': time,
+    'fix_time': fix_time,
+    'datetime': datetime,
     'diameter': diameter,
     'temperature': temperature,
     'pressure': pressure,
@@ -218,6 +242,15 @@ DEFAULT_FIELD_NAMES = {
     'tf': tf, 
     'D50': D50, 
     'neutralizer_status' : neutralizer_status,
+    'laser_status': laser_status,
+    'MeanToFBin1': MeanToFBin1,
+    'MeanToFBin3': MeanToFBin3,
+    'MeanToFBin5': MeanToFBin5,
+    'MeanToFBin7': MeanToFBin7,
+    'reject_glitch' : reject_glitch,
+    'reject_long_TOF': reject_long_TOF,
+    'reject_ratio' : reject_ratio,
+    'reject_count_OOR' : reject_count_OOR, 
     'median': median,
     'mean': mean,
     'geo_mean': geo_mean,
@@ -487,6 +520,33 @@ DEFAULT_METADATA = {
             'valid_max': None,
             'comment': 'Raw counts from particle sizer'}, # if calculated by mypysmps, it will say so here
     
+    particulate_matter1 : { 
+            'units': 'ug/m3',
+            'standard_name': 'particulate_matter1',
+            'long_name': 'particulate_matter1um',
+            'axis': u'Particulate matter 1 \N{GREEK SMALL LETTER MU}m (\N{GREEK SMALL LETTER MU}g/m\N{SUPERSCRIPT THREE})',
+            'valid_min': None, 
+            'valid_max': None,
+            'comment': 'Particulate matter from particle sizer'}, # if calculated by mypysmps, it will say so here
+    
+    particulate_matter2_5 : { 
+            'units': 'ug/m3',
+            'standard_name': 'particulate_matter2_5',
+            'long_name': 'particulate_matter2_5um',
+            'axis': u'Particulate matter 2.5 \N{GREEK SMALL LETTER MU}m (\N{GREEK SMALL LETTER MU}g/m\N{SUPERSCRIPT THREE})',
+            'valid_min': None, 
+            'valid_max': None,
+            'comment': 'Particulate matter from particle sizer'}, # if calculated by mypysmps, it will say so here
+    
+    particulate_matter10 : { 
+            'units': 'ug/m3',
+            'standard_name': 'particulate_matter10',
+            'long_name': 'particulate_matter10um',
+            'axis': u'Particulate matter 10 \N{GREEK SMALL LETTER MU}m (\N{GREEK SMALL LETTER MU}g/m\N{SUPERSCRIPT THREE})',
+            'valid_min': None, 
+            'valid_max': None,
+            'comment': 'Particulate matter from particle sizer'}, # if calculated by mypysmps, it will say so here
+   
 
     # Metadata for particle sizer attributes. CHECK CF STANDARDS!
     'sample' : {
@@ -497,17 +557,31 @@ DEFAULT_METADATA = {
         'comment': ('Number of the sample')},
     
     'time': {
-        'units': 'HH:MM:SS',
+        'units': '%H:%M:%S',
         'standard_name': 'time',
         'long_name': 'time_of_sample_measurement',
         'axis': 'Time [GMT]',
         'comment': ('Time at the start of the sample measurement?')},
+    
+    'fix_time': {
+        'units': 'seconds',
+        'standard_name': 'fix_time',
+        'long_name': 'seconds_since_last_fix',
+        'axis': 'Seconds since last fix [s]',
+        'comment': ('Seconds since last fix')},
                     
     'date': {
-        'units': 'DD/m/YYYY',
+        'units': '%D/%m/%Y',
         'standard_name': 'time',
         'long_name': 'date_of_sample_measurement',
         'axis': 'Date',
+        'comment': ('Date at the start of the sample measurement?')},
+    
+    'datetime': {
+        'units': '%Y.%m.%d %H:%M:%S',
+        'standard_name': 'time',
+        'long_name': 'date_of_sample_measurement',
+        'axis': 'Time',
         'comment': ('Date at the start of the sample measurement?')},
     
     'diameter': {
@@ -571,133 +645,218 @@ DEFAULT_METADATA = {
         'comments': ('Duration of scan time'),
         'meta_group': 'instrument_parameters',
         'long_name': 'scan_time_duration',
-        'units': 's'},
+        'units': 's',
+        'axis': 'Duration of scan time [s]'},
     
     'retrace_time': {
         'comments': ('Duration of retrace time'),
         'meta_group': 'instrument_parameters',
         'long_name': 'retrace_time_duration',
-        'units': 's'},
+        'units': 's',
+        'axis': 'Duration of retrace time [s]'},
     
     'scan_resolution': {
         'comments': ('resolution of scan'),
         'meta_group': 'instrument_parameters',
         'long_name': 'scan_resolution',
-        'units': 'Hz'},
+        'units': 'Hz',
+        'axis': 'Resolution of scan [Hz]'},
     
     'scans_per_sample': {
         'comments': ('Scans per sample'),
         'meta_group': 'instrument_parameters',
         'long_name': 'scans_per_sample',
-        'units': '#'},
+        'units': '#',
+        'axis': 'Scans per sample [#]'},
     
     'sheath_flow': {
         'comments': ('Sheath flow'),
         'meta_group': 'instrument_parameters',
         'long_name': 'sheath_flow',
-        'units': 'L/min'},
+        'units': 'L/min',
+        'axis': 'Sheath flow [L/min]'},
     
     'aerosol_flow': {
         'comments': ('Aerosol flow'),
         'meta_group': 'instrument_parameters',
         'long_name': 'aerosol_flow',
-        'units': 'L/min'},
+        'units': 'L/min',
+        'axis': 'Aerosol flow [L/min]'},
     
     'bypass_flow': {
         'comments': ('Bypass flow'),
         'meta_group': 'instrument_parameters',
         'long_name': 'bypass_flow',
-        'units': 'L/min'},
+        'units': 'L/min',
+        'axis': 'Bypass flow [L/min]'},
     
     'low_voltage': {
         'comments': ('Low voltage value'),
         'meta_group': 'instrument_parameters',
         'long_name': 'low_voltage_value',
-        'units': 'V'},
+        'units': 'V',
+        'axis': 'Low voltage value [V]'},
     
     'high_voltage': {
         'comments': ('High voltage value'),
         'meta_group': 'instrument_parameters',
         'long_name': 'high_voltage_value',
-        'units': 'V'},
+        'units': 'V',
+        'axis': 'High voltage value [V]'},
     
     'lower_size': {
         'comments': ('Lower size limit'),
         'meta_group': 'instrument_parameters',
         'long_name': 'lower_size',
-        'units': 'mm'},
+        'units': 'mm',
+        'axis': 'Lower size limit [mm]'},
     
     'upper_size': {
         'comments': ('Upper size limit'),
         'meta_group': 'instrument_parameters',
         'long_name': 'upper_size',
-        'units': 'mm'},
+        'units': 'mm',
+        'axis': 'Upper size limit [mm]'},
     
     'density': {
         'comments': ('Density ?'),
         'meta_group': 'instrument_parameters',
         'long_name': 'density',
-        'units': 'g/cm3'},
+        'units': 'g/cm3',
+        'axis': 'Density [g/cm3]'},
     
     'td+05': {
         'comments': ("Delay time: the time it takes for aerosol to travel from the exit slit of the DMA to the sensing region of the CPC. \n It depends on DMA, CPC, and sample tube length. Adjustments to td can fine-tune size accuracy. See p 108 SMPS manual."),
         'meta_group': 'instrument_parameters',
         'long_name': 'delay_time',
-        'units': 's'},
+        'units': 's',
+        'axis': 'td+05 [s]'},
     
     'tf': {
         'comments': ('Calculated time for the aerosol to flow through the sample column of the classifier.\n The calculation is based on the classifiers sheath air flow rate, the polydisperse aerosol \n flow rate and the geometry of the clasifier. See p 108 SMPS manual.' ),
         'meta_group': 'instrument_parameters',
         'long_name': 'tf',
-        'units': 's'},
+        'units': 's',
+        'axis':'tf [s]'},
     
     'D50': {
         'comments': ('Cut point diameter of the impactor. Diameter at which the penetration efficiency of the impactor is 50%.\n The SMPS algorithm takes this into account and ignores all particles larger than the impactor D50. \n The D50 depends on impactor type, aerosol flow rate, and particle density among other things. See p 108 SMPS manual.'),
         'meta_group': 'instrument_parameters',
         'long_name': 'D50',
-        'units': 'nm'},
+        'units': 'nm',
+        'axis': 'D50 [nm]'},
     
     'neutralizer_status': {
         'comments': ('neutralizer status: ON/OFF'),
         'meta_group': 'instrument_parameters',
         'long_name': 'neutralizer_status',
-        'units': 'binary'},
+        'units': 'binary',
+        'axis':'Neutralizer status [ON/OFF]'},
+    
+    'laser_status': {
+        'comments': ('laser status number'),
+        'meta_group': 'instrument_parameters',
+        'long_name': 'laser_status',
+        'units': '#',
+        'axis':'Laser status [#]'},
+    
+    'MeanToFBin1': {
+        'comments': ('dynamic fan compensation'),
+        'meta_group': 'instrument_parameters',
+        'long_name': 'MeanToFBin1',
+        'units': 'us',
+        'axis':'Dynamic Fan Compensation 1 [us]'},
+    
+    'MeanToFBin3': {
+        'comments': ('dynamic fan compensation'),
+        'meta_group': 'instrument_parameters',
+        'long_name': 'MeanToFBin3',
+        'units': 'us',
+        'axis':'Dynamic Fan Compensation 3 [us]'},
+    
+    'MeanToFBin5': {
+        'comments': ('dynamic fan compensation'),
+        'meta_group': 'instrument_parameters',
+        'long_name': 'MeanToFBin5',
+        'units': 'us',
+        'axis':'Dynamic Fan Compensation 5 [us]'},
+    
+    'MeanToFBin7': {
+        'comments': ('dynamic fan compensation'),
+        'meta_group': 'instrument_parameters',
+        'long_name': 'MeanToFBin7',
+        'units': 'us',
+        'axis':'Dynamic Fan Compensation 7 [us]'},
+    
+    'reject_glitch' : {
+        'comments': ('Electronic noise indication, high values could suggest a problem with the unit or the set up.'),
+        'meta_group': 'instrument_parameters',
+        'long_name': 'electronic_noise_indication',
+        'units': '#',
+        'axis':'Electronic noise indication (Glitch) [#]'},
+    
+    'reject_long_TOF': {
+        'comments': ('Timing error indication, high values could suggest a problem with the unit or the set up.'),
+        'meta_group': 'instrument_parameters',
+        'long_name': 'timing_error_indication',
+        'units': '#',
+        'axis':'Timing error indication (TOF) [#]'},
+    
+    'reject_ratio' : {
+        'comments': ('Ratio of rejected counts?'),
+        'meta_group': 'instrument_parameters',
+        'long_name': 'reject_ratio',
+        'units': '-',
+        'axis':'Reject ratio [-]'},
+    
+    'reject_count_OOR' : {
+        'comments': ('Reject count out of range?'),
+        'meta_group': 'instrument_parameters',
+        'long_name': 'reject_count_OOR',
+        'units': '#',
+        'axis':'Reject count out of range [#]'},
     
     'median': {
         'comments': ('sample median value'),
         'meta_group': 'instrument_parameters',
         'long_name': 'sample_median',
-        'units': 'nm'},
+        'units': 'nm',
+        'axis': 'Sample median value [nm]'},
     
     'mean': {
         'comments': ('sample mean value'),
         'meta_group': 'instrument_parameters',
         'long_name': 'sample_mean',
-        'units': 'nm'},
+        'units': 'nm',
+        'axis': 'Sample mean value [nm]'},
     
     'geo_mean': {
         'comments': ('sample geo. mean value'),
         'meta_group': 'instrument_parameters',
         'long_name': 'sample_geo_mean',
-        'units': 'nm'},
+        'units': 'nm',
+        'axis':'Sample Geo mean value [nm]'},
     
     'mode': {
         'comments': ('sample mode value'),
         'meta_group': 'instrument_parameters',
         'long_name': 'sample_mode',
-        'units': 'nm'},
+        'units': 'nm',
+        'axis': 'Sample mode value [nm]'},
     
     'geo_std_dev': {
         'comments': ('sample geo standard deviation value'),
         'meta_group': 'instrument_parameters',
         'long_name': 'sample_geo_standard_deviation',
-        'units': '-'},
+        'units': '-',
+        'axis': 'Sample Geo standard deviation [-]'},
     
     'total_concentration': {
         'comments': ('sample total concentration'),
         'meta_group': 'instrument_parameters',
         'long_name': 'sample_total_concentration',
-        'units': '#/cm3'},
+        'units': '#/cm3',
+        'axis': 'Sample total concentration [#/cm3]'},
     
     'title' : {
         'comments': ('title of file'),
@@ -785,10 +944,9 @@ DEFAULT_METADATA = {
 # empty if the default metadata is acceptable.
 ##############################################################################
 
-"""
-NONE
-"""
-
+INSTRUMENT_HEADERS = {
+    'OPC' : ["Time(HHMMSS.ms)", "seconds since last time", "Latitude", "Longitude", "Seconds since fix", "bin0", "bin1", "bin2", "bin3", "bin4", "bin5", "bin6", "bin7", "bin8", "bin9", "bin10", "bin11", "bin12", "bin13", "bin14", "bin15", "bin16", "bin17", "bin18", "bin19", "bin20", "bin21", "bin22", "bin23", "MtoFBin1", "MtoFBin3", "MtoFbin5", "MtoFBin7", "SampPrd(s)", "SFR(ml/s)", "T(C)", "RH(%)", "PM_A(ug/m^3)", "PM_B", "PM_C", "#RejectGlitch", "#RejectLongTOF", "#RejectRatio", "#RejectCountOutOfRange", "LaserStatus"]
+    }
 
 ##############################################################################
 # Field name mapping
@@ -959,6 +1117,28 @@ FIELD_MAPPING = {
            'time' : 'Start Time',
            'date' : 'Date'
         
+    },
+    'OPC':{'time' : 'Time(HHMMSS.ms)',
+           'duration': 'seconds since last time',
+           'latitude': 'Latitude',
+           'longitude': 'Longitude',
+           'fix_time': 'Seconds since fix',
+           'MeanToFBin1': 'MtoFBin1',
+           'MeanToFBin3': 'MtoFBin3',
+           'MeanToFBin5': 'MtoFbin5',
+           'MeanToFBin7': 'MtoFBin7',
+           'scan_time': 'SampPrd(s)',
+           'aerosol_flow': 'SFR(ml/s)', 
+           'temperature': 'T(C)',
+           'relative_humidity': 'RH(%)',
+           'particulate_matter1': 'PM_A(ug/m^3)',
+           'particulate_matter2_5': 'PM_B',
+           'particulate_matter10': 'PM_C',
+           'reject_glitch': '#RejectGlitch',
+           'reject_long_TOF': '#RejectLongTOF',
+           'reject_ratio': '#RejectRatio',
+           'reject_count_OOR': '#RejectCountOutOfRange',
+           'laser_status': 'LaserStatus'
     }
 }
 
@@ -986,7 +1166,8 @@ DEFAULT_FIELD_LIMITS = {
     # field name : limits
     diameter: (0., 100000.), # set to 100 micrometer (in nm) to accomodate for other particle sizer instruments
     raw_counts: (0,20),
-    normalised_number_concentration : (1,10000)# 
+    normalised_number_concentration : (1,10000),#
+    total_concentration : (1,10000)
 }
 
 ##############################################################################
@@ -1015,5 +1196,7 @@ DEFAULT_FIGURE_SETTINGS = {
     'histplot':{'size':(20,7)
         },
     'heatplot':{'size':(20,7)
+        },
+    'timeplot':{'size':(20,7)
         }
 }

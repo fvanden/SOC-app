@@ -14,7 +14,7 @@ import datetime as dt
 
 from ._cm import _smps_flo
 from ..util.mathfuncs import roundup
-from ..config import get_figure_settings, _DEFAULT_FIELD_LIMITS
+from ..config import get_figure_settings, get_field_limits, _DEFAULT_FIELD_LIMITS
 import mypysmps.util.timetransform as timetransform
 tt = timetransform.TimeTransform()
 #################
@@ -24,16 +24,28 @@ mysmps.graph.psdisplay
 ==================
 
 A general particle sizer display class
-    display
+    PSDisplay
+        plot
+        histogram
+        timeLine
+        
+        create_bins
+        fmt
+        plotInfo
+        dateInfo
+        plotIndicator
+        defineIndicator
+        find24hourperiods
+    
 
 Created on Mon Jul 20 13:46 2020
-perhaps it would be worthwhile to contact the manufacturer  
-
-
 
 @author: flovan / fvanden
 
 Revision history:   20.07.2020 - Created
+                    17.09.2020 - Added timeLine
+                    21.09.2020 - Finished adding timeLine, 
+        and adapted ylim handling in plot and histogram scripts
 
 
 """
@@ -78,17 +90,37 @@ class PSDisplay(object):
             data field to plot
             
         kwargs:
-            indicator
-            colorbar
-            xlim
-            ylim
-            clim
-            set_time
-            time_format
-            xlabel
-            ylabel
-            title
-            return_axes
+            indicator : int
+                sample on which to plot a red location indicator
+            indperiods : bool
+                if True, 24 hour periods will be indicated with
+                lines on the plot
+            starttime : str
+                starting time for indperiods in 'HH:MM:SS'
+            colorbar : str
+                name of colorbar to use
+            xlim : tuple of floats or float
+                x limits
+            ylim : tuple of floats or float
+                y limits
+            clim : tuple of floats or float
+                colorbar limits
+            set_time : bool
+                if True, the measurement time will be plotted on
+                the x axis, else the sample number will be used
+            time_format : str
+                if set_time is True, which time format to use, 
+                default is '%d-%m %H:%M'
+            xlabel : str
+                xlabel for plot, if not given the SMPS standard
+                label from the config file is used
+            ylabel : str
+                ylabel for plot, if not given the SMPS standard
+                label from the config file is used
+            title : str
+                title for plot
+            return_axes : bool
+                if True the figure handles are returned 
             
             
         See Also
@@ -282,12 +314,24 @@ class PSDisplay(object):
         legend_loc = kwargs.get("legend_loc", 'best') 
         return_axes = kwargs.get("return_axes", False)
         
+        # get plot data
+        plotdata = self._smps.data[field]['data'][:,sample]
         
-        ylim = kwargs.get("ylim", _DEFAULT_FIELD_LIMITS[field])
+        # get correct ylim, xlim data
+    
+        ylim = kwargs.get("ylim", get_field_limits(field))
         try:
             len(ylim) # ylim is a tuple
         except TypeError: # ylim is a single value 
-            ylim = [_DEFAULT_FIELD_LIMITS[field][0], ylim]
+            ylim = [get_field_limits(field)[0], ylim]
+        if None in ylim:
+            nloc = [i for i, val in enumerate(ylim) if val == None] 
+            if len(cloc) == 2:
+                ylim = (np.min(plotdata), np.max(plotdata) )
+            elif nloc == 0:
+                ylim = (np.nanmin(plotdata), ylim[1])
+            elif nloc == 1:
+                ylim = (ylim[0], np.nanmax(plotdata) )
 
         
         xlim = kwargs.get("xlim", [1,1000])
@@ -296,15 +340,11 @@ class PSDisplay(object):
         except TypeError: # xlim is a single value 
             xlim = [1, xlim]
         
-        
         # get figure settings
         figdict = get_figure_settings('histplot')
         
         # create figure
-        fig, ax = plt.subplots(figsize=figdict['size'])
-        
-        # get plot data
-        plotdata = self._smps.data[field]['data'][:,sample]
+        fig, ax = plt.subplots(figsize=figdict['size'])   
         
         # get bins
         bins = self.create_bins()
@@ -366,6 +406,178 @@ class PSDisplay(object):
         if return_axes is True:
             return fig, ax
         
+      
+    def timeLine(self,field = None,**kwargs):
+        """
+        Creates a time line plot for the particle sizer
+        
+        Parameters
+        ----------
+        
+        field : str
+            data field to plot, if None, total_concentration
+            will be used
+        
+        Parameters - optional
+        ---------------------
+        diameter : int or float
+            if the selected data field is multi-dimensional, 
+            the number (0 to length of diameters) or midpoint
+            value of the diameter size bin to plot. The 
+            default value is 0
+        indicator : int
+            sample on which to plot a red location indicator
+        indperiods : bool
+            if True, 24 hour periods will be indicated with
+            lines on the plot
+        starttime : str
+            starting time for indperiods in 'HH:MM:SS'
+        set_time : bool
+            if True, the measurement time will be plotted on
+            the x axis, else the sample number will be used
+        time_format : str
+            if set_times = [i for i, val in enumerate(test_list) if val == None] e is True, which time format to use, 
+            default is '%d-%m %H:%M'
+        xlim : tuple of floats
+            limits of the x axis
+        ylim : tuple of floats
+            limits of the y axis
+        xlabel : str
+            name of x axis
+        ylabel : str
+            name of y axis 
+        title : str
+            name of plot
+        return_axes : bool
+            returns axes and figure handles
+
+        """
+        # set field
+        if field is None:
+            field = 'total_concentration'
+        
+        # get field data
+        select_diameter = False
+        try:
+            fielddata = getattr(self._smps, field)
+        except AttributeError:
+            try:
+                fielddata = self._smps.data[field]
+                select_diameter = True
+                diameter = kwargs.get("diameter", 0)
+            except KeyError:
+                print( ("Warning: %s field could not be found")%(field) )
+                return None
+            
+        # get kwargs     
+        indicatorline = kwargs.get("indicator", False)
+        indperiods = kwargs.get("periods",False)
+        starttime = kwargs.get('starttime', '00:00:00')
+        set_time = kwargs.get("set_time", True)
+        if set_time is True:
+            time_format = kwargs.get("time_format",'%d-%m %H:%M')
+        xlabel = kwargs.get("xlabel", self._smps.time['axis'])
+        ylabel = kwargs.get("ylabel", fielddata['axis'])
+        title = kwargs.get("title", self._smps.metadata['Sample File'] )
+        addlegend = kwargs.get("add_legend", False)
+        legend_loc = kwargs.get("legend_loc", 'best') 
+        return_axes = kwargs.get("return_axes", False)
+        
+        # get correct xlim data
+        xlim = kwargs.get("xlim", [0,len(self._smps.time['data'])])
+        try:
+            len(xlim) # xlim is a tuple
+        except TypeError: # xlim is a single value 
+            xlim = [0, xlim]
+        
+        if select_diameter is True:
+            if isinstance(diameter, float):
+                diameter = (abs(np.asarray(self._smps.diameter['data']) - diameter)).argmin()
+        
+        # get figure settings
+        figdict = get_figure_settings('timeplot')
+        
+        # create figure
+        fig, ax = plt.subplots(figsize=figdict['size'])
+        
+        # get plot data
+        
+        if select_diameter is True:
+            plotdata = fielddata['data'][diameter,:]
+        else:
+            plotdata = fielddata['data']
+            
+        # create plot
+        ax.plot(np.arange(0, len(plotdata)), plotdata)
+        
+        # get correct ylim data
+        ylim = kwargs.get("ylim", get_field_limits(field))
+        try:
+            len(ylim) # ylim is a tuple
+        except TypeError: # ylim is a single value 
+            ylim = [get_field_limits(field)[0], ylim]
+        if None in ylim:
+            nloc = [i for i, val in enumerate(ylim) if val == None] 
+            if len(nloc) == 2:
+                ylim = (np.min(plotdata), np.max(plotdata) )
+            elif nloc == 0:
+                ylim = (np.nanmin(plotdata), ylim[1])
+            elif nloc == 1:
+                ylim = (ylim[0], np.nanmax(plotdata) )
+        
+        # plot periods if True
+        
+        if indperiods:
+            plist = self.find24hourperiods(starttime = starttime)
+            for p in plist:
+                self.plotIndicator(ax, [p,p], [ylim[0], ylim[1]],'b--')
+                
+        # plot indicator line if True
+        
+        if indicatorline is not False:
+            self.plotIndicator(ax, [indicatorline, indicatorline],[ylim[0], ylim[1]],'r--')
+            #ax.plot([indicatorline, indicatorline],[ylim[0], ylim[1]],'r--')
+            
+        if set_time is True:
+            datetimes = []
+            for i in range(0, len(self._smps.time['data'])):
+                datetimes.append( self._smps.date['data'][i] + ' ' + self._smps.time['data'][i] )
+            
+            x_values = [dt.datetime.strptime(d,"%d/%m/%Y %H:%M:%S") for d in datetimes]
+            newlabels = [dt.datetime.strftime(d, time_format) for d in x_values]
+            
+            #pos = [int(item.get_position()[0]) for item in ax.get_xticklabels()]
+            #labels = [newlabels[0]] + list(np.asarray(newlabels)[pos[1:-1]])  + [newlabels[-1]]
+            labelnums = np.ceil(np.arange(0,roundup(len(newlabels))+1, roundup(len(newlabels))/8))
+            labelnums = [int(d) for d in labelnums]
+            labels = []
+
+            for i in range(0, len(labelnums)):
+                try:
+                    labels.append(newlabels[labelnums[i]])
+                except IndexError:
+                    labels.append(newlabels[-1])
+            
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                ax.set_xticks(labelnums)
+                ax.set_xticklabels(labels,rotation = 45)
+
+            
+        # set labels 
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        
+        # set axes limits
+        ax.set_xlim(xlim)
+        ax.set_ylim(ylim)
+    
+        # set title
+        plt.title(title)
+            
+        # if return axes is True, return them
+        if return_axes is True:
+            return fig, ax
         
         
     def create_bins(self,):

@@ -68,6 +68,7 @@ def load_config(filename = None):
     global _FIELD_MAPPING
     global _DEFAULT_FIGURE_SETTINGS
     global _INSTRUMENT_SETTINGS
+    global _INSTRUMENT_HEADERS
     
     #global _FILE_SPECIFIC_METADATA
     #global _FIELD_MAPPINGS
@@ -84,6 +85,7 @@ def load_config(filename = None):
     _FIELD_MAPPING = cfile.FIELD_MAPPING
     _DEFAULT_FIGURE_SETTINGS = cfile.DEFAULT_FIGURE_SETTINGS
     _INSTRUMENT_SETTINGS = cfile.INSTRUMENT_SETTINGS
+    _INSTRUMENT_HEADERS = cfile.INSTRUMENT_HEADERS
     return
 
 # load the configuration from the enviromental parameter if it is set
@@ -163,7 +165,7 @@ def get_field_limits(field):
     
 def get_figure_settings(figtype):
     """
-    Return figure settings from the configutation file for a given figure type
+    Return figure settings from the configuration file for a given figure type
     
     Parameters
     ----------
@@ -178,5 +180,25 @@ def get_figure_settings(figtype):
     if figtype in _DEFAULT_FIGURE_SETTINGS:
         figdict = _DEFAULT_FIGURE_SETTINGS[figtype]
         return figdict
+    else:
+        return None
+    
+def get_instrument_header(instrument):
+    """
+    Return instrument header from the configuration file for a given instrument
+    
+    Parameters
+    ----------
+    instrument : str
+        instrument name
+        
+    Returns
+    -------
+    header : list
+        list of instrument header names
+    """
+    if instrument in _INSTRUMENT_HEADERS:
+        header = _INSTRUMENT_HEADERS[instrument]
+        return header
     else:
         return None

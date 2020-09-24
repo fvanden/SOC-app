@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 #################
+import datetime as dt
 
+from ..config import get_metadata
+from ..util.timetransform import TimeTransform
+tt = TimeTransform()
 #################
 
 """
@@ -16,9 +20,11 @@ Created on Thu Jul 9 14:37 2020
 @author: flovan / fvanden
 
 Revision history:   09.07.2020 - Created
-                    10.07.2020 - Additions to ParticleSizer class
+                    10.07.2020 - Addittdions to ParticleSizer class
                     20.07.2020 - Added self.__dict__.update(kwargs)
                         for open ended kwargs addition
+                    13.08.2020 - Added Empty
+                    18.08.2020 - Added createTimeDate and findSample functions
 
 
 """
@@ -143,7 +149,72 @@ class ParticleSizer(object):
     ## ------------------------------------------------------------------ ##
 
     # private:
-
+    
+    def createTimeDate(self, dtformat = '%Y.%m.%d %H:%M:%S', output = False):
+        """
+        Creates a list which combines date and time information
+        
+        Parameters
+        ----------
+        dtformat : str
+            date time format for output list
+            
+        output : bool
+            if True, the list is returned, otherwise it is stored
+            in the class instance
+            
+        Returns
+        -------
+        list : list of str
+            date and time combined in a single time format
+        """
+        tdlist = []
+        for i in range(len(self.date['data'])):
+            nd = self.date['data'][i] + ' ' + self.time['data'][i]
+            tdlist.append(dt.datetime.strftime(dt.datetime.strptime(nd,'%d/%m/%Y %H:%M:%S'), dtformat))
+           
+        self.datetime = get_metadata('datetime')
+        self.datetime['units'] = dtformat
+        self.datetime['data'] = tdlist
+        
+        if output:
+            return tdlist
+        
+    def findSample(self,sample, dtformat = '%Y.%m.%d %H:%M:%S'):
+        """
+        Finds the sample index or time
+        
+        Parameters
+        ----------
+        sample : int or str
+            either an integer (sample number) or a string (date)
+            
+        dtformat : str
+            date time format for output
+            
+        Returns
+        -------
+        loc : str or int
+            depending on the type of input: the date of the sample
+            or the index of the date (or closest date)
+        """
+        
+        if isinstance(sample, int):
+            # given sample is an integer, 
+            # the date and time for the sample
+            # will be returned
+            return dt.datetime.strftime(dt.datetime.strptime(self.date['data'][sample] + ' ' + self.time['data'][sample],'%d/%m/%Y %H:%M:%S'), dtformat)
+        elif isinstance(sample, str):
+            # given sample is a string, 
+            # the indice for the given time
+            # will be returned
+            self.createTimeDate(dtformat = dtformat)
+            idx, date = tt.findNearestDate(self.datetime, sample)
+            return idx
+        else:
+            print( ("%s is not a relevant input format"%(type)) )
+            pass
+            
 
 
 
@@ -175,6 +246,56 @@ class SMPS(ParticleSizer):
     ## Constructors/Destructors                                           ##
     ## ------------------------------------------------------------------ ##
     def __init__(self,time, date, sample, data, diameter, metadata, pddata,header, **kwargs):
+        ParticleSizer.__init__(self, time, date, sample, data, diameter, metadata, pddata,header, **kwargs)
+        # other stuff if necessary
+        
+    def __del__(self):
+        pass
+    
+    ## ------------------------------------------------------------------ ##
+    ## Methods                                                            ##
+    ## ------------------------------------------------------------------ ##
+
+    # private:
+    
+class Empty(ParticleSizer):
+    """
+    An empty class for storing particle sizer data.
+    
+    Parameters
+    ----------
+    None : class can be initiated empty
+    
+    See Also
+    --------
+    mysmps.core.read.ParticleSizer
+    
+    """
+    ## ------------------------------------------------------------------ ##
+    ## Constructors/Destructors                                           ##
+    ## ------------------------------------------------------------------ ##
+    
+    def __init__(self, **kwargs):
+        time = get_metadata('time')
+        time['data'] = []
+
+        date = get_metadata('date')
+        date['data'] = []
+
+        sample = get_metadata('sample')
+        sample['data'] = []
+
+        data = {}
+        data['variables'] = []
+
+        diameter = get_metadata('diameter')
+        diameter['data'] = []
+
+        metadata = {}
+
+        pddata = []
+
+        header = []
         ParticleSizer.__init__(self, time, date, sample, data, diameter, metadata, pddata,header, **kwargs)
         # other stuff if necessary
         
