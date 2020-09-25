@@ -535,7 +535,7 @@ class PSDisplay(object):
         if None in ylim:
             nloc = [i for i, val in enumerate(ylim) if val == None]
             if len(nloc) == 2:
-                ylim = (np.min(plotdata), np.max(plotdata) )
+                ylim = (np.nanmin(plotdata), np.nanmax(plotdata) )
             elif nloc[0] == 0:
                 ylim = (np.nanmin(plotdata), ylim[1])
             elif nloc[0] == 1:

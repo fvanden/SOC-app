@@ -189,7 +189,14 @@ def stack_ps(ps1, ps2, keep_unique = False, fill_time = False, message = True):
                     try:
                         data_ps2 = field_ps2['data']
                         data_ps1 = field_ps1['data']
-                        afield['data'] = np.append(data_ps2[:cut], data_ps1)
+                        if attribute in ['date', 'datetime', 'time']: # these have already been extended with the correct data
+                            afield['data'] = np.append(data_ps2[:cut], data_ps1)
+                        elif fill_time:
+                            add = np.ma.zeros(len(date_list))
+                            add[:] = np.nan
+                            afield['data'] = np.append(np.append(data_ps2[:cut],add), data_ps1)
+                        else:
+                            afield['data'] = np.append(data_ps2[:cut], data_ps1)
                     except:
                         if message:
                             print( ("Could not append %s attribute")%(attribute) )
@@ -255,7 +262,14 @@ def stack_ps(ps1, ps2, keep_unique = False, fill_time = False, message = True):
                     try:
                         data_ps2 = field_ps2['data']
                         data_ps1 = field_ps1['data']
-                        afield['data'] = np.append(data_ps1[:cut], data_ps2)
+                        if attribute in ['date', 'datetime', 'time']: # these have already been extended with the correct data
+                            afield['data'] = np.append(data_ps1[:cut], data_ps2)
+                        elif fill_time:
+                            add = np.ma.zeros(len(date_list))
+                            add[:] = np.nan
+                            afield['data'] = np.append(np.append(data_ps1[:cut],add), data_ps2)
+                        else:
+                            afield['data'] = np.append(data_ps1[:cut], data_ps2)
                     except:
                         if message:
                             print( ("Could not append %s attribute")%(attribute) )
