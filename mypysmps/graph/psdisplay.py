@@ -46,6 +46,8 @@ Revision history:   20.07.2020 - Created
                     17.09.2020 - Added timeLine
                     21.09.2020 - Finished adding timeLine,
         and adapted ylim handling in plot and histogram scripts
+                    24.09.2020 - Added some exceptions to timeline
+                    plots to handle widget input
 
 
 """
@@ -207,11 +209,13 @@ class PSDisplay(object):
         # set axes labels and other
         set_time = kwargs.get("set_time", True)
         if set_time is True:
-            datetimes = []
-            for i in range(0, len(self._smps.time['data'])):
-                datetimes.append( self._smps.date['data'][i] + ' ' + self._smps.time['data'][i] )
+            
+            datetimes = self._smps.createTimeDate(output=True)
+            #datetimes = []
+            #for i in range(0, len(self._smps.time['data'])):
+            #    datetimes.append( self._smps.date['data'][i] + ' ' + self._smps.time['data'][i] )
 
-            x_values = [dt.datetime.strptime(d,"%d/%m/%Y %H:%M:%S") for d in datetimes]
+            x_values = [dt.datetime.strptime(d,self._smps.datetime['units']) for d in datetimes]
             time_format = kwargs.get("time_format", '%d-%m %H:%M')
             newlabels = [dt.datetime.strftime(d, time_format) for d in x_values]
             #labelnums = [int(item.get_position()[0]) for item in ax.get_xticklabels()]

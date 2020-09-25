@@ -571,7 +571,7 @@ DEFAULT_METADATA = {
         'comment': ('Seconds since last fix')},
                     
     'date': {
-        'units': '%D/%m/%Y',
+        'units': '%d/%m/%Y',
         'standard_name': 'time',
         'long_name': 'date_of_sample_measurement',
         'axis': 'Date',

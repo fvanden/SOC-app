@@ -136,7 +136,8 @@ def read_aim_csv(filename, fileorg = 'AIM', **kwargs):
                     values.append(metadat[i])
                 else:
                     variables.append(metadat[i])
-                    
+         
+    
     metadatadict = {}
     for v,variable in enumerate(variables):
         metadatadict[variable] = values[v]

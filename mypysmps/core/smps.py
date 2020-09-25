@@ -169,9 +169,10 @@ class ParticleSizer(object):
             date and time combined in a single time format
         """
         tdlist = []
+        timeformat = self.date['units'] + ' ' + self.time['units']
         for i in range(len(self.date['data'])):
             nd = self.date['data'][i] + ' ' + self.time['data'][i]
-            tdlist.append(dt.datetime.strftime(dt.datetime.strptime(nd,'%d/%m/%Y %H:%M:%S'), dtformat))
+            tdlist.append(dt.datetime.strftime(dt.datetime.strptime(nd,timeformat), dtformat))
            
         self.datetime = get_metadata('datetime')
         self.datetime['units'] = dtformat
