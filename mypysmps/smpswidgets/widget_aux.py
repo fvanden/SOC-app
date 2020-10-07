@@ -45,7 +45,7 @@ def wchooseFile(directory = "data/"):
              for root, dirs, files in os.walk(directory)
              for name in files
              if name.endswith((".txt", ".csv"))]
-    return options
+    return sorted(options)
 
 def wread(filename):
     """

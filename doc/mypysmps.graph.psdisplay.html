@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module mypysmps.graph.psdisplay</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="mypysmps.html"><font color="#ffffff">mypysmps</font></a>.<a href="mypysmps.graph.html"><font color="#ffffff">graph</font></a>.psdisplay</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/fvanden/Documents/BAS/Python/PSpy/mypysmps/graph/psdisplay.py">/home/fvanden/Documents/BAS/Python/PSpy/mypysmps/graph/psdisplay.py</a></font></td></tr></table>
+    <p><tt>#&nbsp;-*-&nbsp;coding:&nbsp;utf-8&nbsp;-*-<br>
+#################</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="datetime.html">datetime</a><br>
+<a href="math.html">math</a><br>
+<a href="matplotlib.colors.html">matplotlib.colors</a><br>
+</td><td width="25%" valign=top><a href="matplotlib.dates.html">matplotlib.dates</a><br>
+<a href="matplotlib.ticker.html">matplotlib.ticker</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="matplotlib.pyplot.html">matplotlib.pyplot</a><br>
+<a href="matplotlib.ticker.html">matplotlib.ticker</a><br>
+<a href="mypysmps.util.timetransform.html">mypysmps.util.timetransform</a><br>
+</td><td width="25%" valign=top><a href="warnings.html">warnings</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="mypysmps.graph.psdisplay.html#PSDisplay">PSDisplay</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="PSDisplay">class <strong>PSDisplay</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#PSDisplay">PSDisplay</a>(smps,&nbsp;**kwargs)<br>
+&nbsp;<br>
+A&nbsp;class&nbsp;for&nbsp;displaying&nbsp;particle&nbsp;sizer&nbsp;data<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+smps&nbsp;-&nbsp;SMPS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;core.SMPS&nbsp;<a href="builtins.html#object">object</a>&nbsp;to&nbsp;use&nbsp;for&nbsp;creating&nbsp;plots<br>
+&nbsp;<br>
+Attributes<br>
+----------<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="PSDisplay-__del__"><strong>__del__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="PSDisplay-__init__"><strong>__init__</strong></a>(self, smps, **kwargs)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="PSDisplay-create_bins"><strong>create_bins</strong></a>(self)</dt><dd><tt>Creates&nbsp;bins&nbsp;for&nbsp;histogram&nbsp;plot<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+&nbsp;<br>
+See&nbsp;Also<br>
+--------</tt></dd></dl>
+
+<dl><dt><a name="PSDisplay-dateInfo"><strong>dateInfo</strong></a>(self, sample)</dt><dd><tt>Prints&nbsp;the&nbsp;time&nbsp;and&nbsp;date&nbsp;of&nbsp;a&nbsp;SMPS&nbsp;sample<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+sample&nbsp;:&nbsp;int<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sample&nbsp;number</tt></dd></dl>
+
+<dl><dt><a name="PSDisplay-defineIndicator"><strong>defineIndicator</strong></a>(self, date)</dt><dd><tt>defines&nbsp;x&nbsp;(and&nbsp;y)&nbsp;position&nbsp;of&nbsp;a&nbsp;date&nbsp;on&nbsp;the&nbsp;plot<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+date&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;date&nbsp;in&nbsp;'%d-%m-%Y&nbsp;%H:%M:%S'&nbsp;format</tt></dd></dl>
+
+<dl><dt><a name="PSDisplay-find24hourperiods"><strong>find24hourperiods</strong></a>(self, starttime=None)</dt><dd><tt>Returns&nbsp;indices&nbsp;in&nbsp;data&nbsp;for&nbsp;24&nbsp;hour&nbsp;periods<br>
+starting&nbsp;from&nbsp;starttime<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+starttime&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;time&nbsp;in&nbsp;HH:MM:SS<br>
+&nbsp;<br>
+Returns<br>
+-------<br>
+indices&nbsp;:&nbsp;list&nbsp;of&nbsp;integers<br>
+&nbsp;&nbsp;&nbsp;&nbsp;list&nbsp;of&nbsp;indices</tt></dd></dl>
+
+<dl><dt><a name="PSDisplay-fmt"><strong>fmt</strong></a>(self, x, pos)</dt></dl>
+
+<dl><dt><a name="PSDisplay-histogram"><strong>histogram</strong></a>(self, field, sample=0, **kwargs)</dt><dd><tt>Create&nbsp;a&nbsp;histogram&nbsp;plot&nbsp;for&nbsp;the&nbsp;particle&nbsp;sizer<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+field&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;data&nbsp;field&nbsp;to&nbsp;plot<br>
+sample&nbsp;:&nbsp;int<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sample&nbsp;number&nbsp;to&nbsp;plot<br>
+&nbsp;<br>
+Parameters&nbsp;-&nbsp;optional<br>
+---------------------<br>
+xlim&nbsp;:&nbsp;tuple&nbsp;of&nbsp;floats<br>
+&nbsp;&nbsp;&nbsp;&nbsp;limits&nbsp;of&nbsp;the&nbsp;x&nbsp;axis<br>
+ylim&nbsp;:&nbsp;tuple&nbsp;of&nbsp;floats<br>
+&nbsp;&nbsp;&nbsp;&nbsp;limits&nbsp;of&nbsp;the&nbsp;y&nbsp;axis<br>
+xlabel&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;of&nbsp;x&nbsp;axis<br>
+ylabel&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;of&nbsp;y&nbsp;axis<br>
+add_D50&nbsp;:&nbsp;bool<br>
+&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;a&nbsp;D50&nbsp;impactor&nbsp;line&nbsp;to&nbsp;the&nbsp;plot<br>
+add_boundaries&nbsp;:&nbsp;bool<br>
+&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;upper&nbsp;and&nbsp;lower&nbsp;boundaries&nbsp;to&nbsp;plot<br>
+add_legend&nbsp;:&nbsp;bool<br>
+&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;legend&nbsp;to&nbsp;a&nbsp;plot<br>
+D50_linec&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;colour&nbsp;of&nbsp;D50&nbsp;line<br>
+boundary_linec&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;colour&nbsp;of&nbsp;upper&nbsp;and&nbsp;lower&nbsp;boundary&nbsp;lines<br>
+legend_loc&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;location&nbsp;of&nbsp;thee&nbsp;legend<br>
+return_axes&nbsp;:&nbsp;bool<br>
+&nbsp;&nbsp;&nbsp;&nbsp;returns&nbsp;axes&nbsp;and&nbsp;figure&nbsp;handles<br>
+&nbsp;<br>
+See&nbsp;Also<br>
+--------</tt></dd></dl>
+
+<dl><dt><a name="PSDisplay-plot"><strong>plot</strong></a>(self, field, **kwargs)</dt><dd><tt>Create&nbsp;a&nbsp;heatmap&nbsp;of&nbsp;particle&nbsp;sizer&nbsp;data<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+field&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;data&nbsp;field&nbsp;to&nbsp;plot<br>
+&nbsp;<br>
+kwargs:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;indicator&nbsp;:&nbsp;int<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sample&nbsp;on&nbsp;which&nbsp;to&nbsp;plot&nbsp;a&nbsp;red&nbsp;location&nbsp;indicator<br>
+&nbsp;&nbsp;&nbsp;&nbsp;indperiods&nbsp;:&nbsp;bool<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;True,&nbsp;24&nbsp;hour&nbsp;periods&nbsp;will&nbsp;be&nbsp;indicated&nbsp;with<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lines&nbsp;on&nbsp;the&nbsp;plot<br>
+&nbsp;&nbsp;&nbsp;&nbsp;starttime&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;starting&nbsp;time&nbsp;for&nbsp;indperiods&nbsp;in&nbsp;'HH:MM:SS'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;colorbar&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;of&nbsp;colorbar&nbsp;to&nbsp;use<br>
+&nbsp;&nbsp;&nbsp;&nbsp;xlim&nbsp;:&nbsp;tuple&nbsp;of&nbsp;floats&nbsp;or&nbsp;float<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;limits<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ylim&nbsp;:&nbsp;tuple&nbsp;of&nbsp;floats&nbsp;or&nbsp;float<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y&nbsp;limits<br>
+&nbsp;&nbsp;&nbsp;&nbsp;clim&nbsp;:&nbsp;tuple&nbsp;of&nbsp;floats&nbsp;or&nbsp;float<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;colorbar&nbsp;limits<br>
+&nbsp;&nbsp;&nbsp;&nbsp;set_time&nbsp;:&nbsp;bool<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;True,&nbsp;the&nbsp;measurement&nbsp;time&nbsp;will&nbsp;be&nbsp;plotted&nbsp;on<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;x&nbsp;axis,&nbsp;else&nbsp;the&nbsp;sample&nbsp;number&nbsp;will&nbsp;be&nbsp;used<br>
+&nbsp;&nbsp;&nbsp;&nbsp;time_format&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;set_time&nbsp;is&nbsp;True,&nbsp;which&nbsp;time&nbsp;format&nbsp;to&nbsp;use,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default&nbsp;is&nbsp;'%d-%m&nbsp;%H:%M'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;xlabel&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xlabel&nbsp;for&nbsp;plot,&nbsp;if&nbsp;not&nbsp;given&nbsp;the&nbsp;SMPS&nbsp;standard<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;label&nbsp;from&nbsp;the&nbsp;config&nbsp;file&nbsp;is&nbsp;used<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ylabel&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ylabel&nbsp;for&nbsp;plot,&nbsp;if&nbsp;not&nbsp;given&nbsp;the&nbsp;SMPS&nbsp;standard<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;label&nbsp;from&nbsp;the&nbsp;config&nbsp;file&nbsp;is&nbsp;used<br>
+&nbsp;&nbsp;&nbsp;&nbsp;title&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;title&nbsp;for&nbsp;plot<br>
+&nbsp;&nbsp;&nbsp;&nbsp;return_axes&nbsp;:&nbsp;bool<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;True&nbsp;the&nbsp;figure&nbsp;handles&nbsp;are&nbsp;returned<br>
+&nbsp;<br>
+&nbsp;<br>
+See&nbsp;Also<br>
+--------</tt></dd></dl>
+
+<dl><dt><a name="PSDisplay-plotIndicator"><strong>plotIndicator</strong></a>(self, ax, xlims, ylims, linec)</dt><dd><tt>plots&nbsp;and&nbsp;indicator&nbsp;line<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+ax&nbsp;:&nbsp;matplotlib&nbsp;figure&nbsp;axis<br>
+&nbsp;&nbsp;&nbsp;&nbsp;axis&nbsp;of&nbsp;the&nbsp;figure<br>
+&nbsp;<br>
+xlims&nbsp;:&nbsp;tuple<br>
+&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;limits&nbsp;of&nbsp;indicator&nbsp;line<br>
+&nbsp;<br>
+ylims&nbsp;:&nbsp;tuple<br>
+&nbsp;&nbsp;&nbsp;&nbsp;y&nbsp;limits&nbsp;of&nbsp;indicator&nbsp;line<br>
+&nbsp;<br>
+linec&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;line&nbsp;type&nbsp;and&nbsp;colour</tt></dd></dl>
+
+<dl><dt><a name="PSDisplay-plotInfo"><strong>plotInfo</strong></a>(self, **kwargs)</dt></dl>
+
+<dl><dt><a name="PSDisplay-timeLine"><strong>timeLine</strong></a>(self, field=None, **kwargs)</dt><dd><tt>Creates&nbsp;a&nbsp;time&nbsp;line&nbsp;plot&nbsp;for&nbsp;the&nbsp;particle&nbsp;sizer<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+&nbsp;<br>
+field&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;data&nbsp;field&nbsp;to&nbsp;plot,&nbsp;if&nbsp;None,&nbsp;total_concentration<br>
+&nbsp;&nbsp;&nbsp;&nbsp;will&nbsp;be&nbsp;used<br>
+&nbsp;<br>
+Parameters&nbsp;-&nbsp;optional<br>
+---------------------<br>
+diameter&nbsp;:&nbsp;int&nbsp;or&nbsp;float<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;the&nbsp;selected&nbsp;data&nbsp;field&nbsp;is&nbsp;multi-dimensional,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;number&nbsp;(0&nbsp;to&nbsp;length&nbsp;of&nbsp;diameters)&nbsp;or&nbsp;midpoint<br>
+&nbsp;&nbsp;&nbsp;&nbsp;value&nbsp;of&nbsp;the&nbsp;diameter&nbsp;size&nbsp;bin&nbsp;to&nbsp;plot.&nbsp;The<br>
+&nbsp;&nbsp;&nbsp;&nbsp;default&nbsp;value&nbsp;is&nbsp;0<br>
+indicator&nbsp;:&nbsp;int<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sample&nbsp;on&nbsp;which&nbsp;to&nbsp;plot&nbsp;a&nbsp;red&nbsp;location&nbsp;indicator<br>
+indperiods&nbsp;:&nbsp;bool<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;True,&nbsp;24&nbsp;hour&nbsp;periods&nbsp;will&nbsp;be&nbsp;indicated&nbsp;with<br>
+&nbsp;&nbsp;&nbsp;&nbsp;lines&nbsp;on&nbsp;the&nbsp;plot<br>
+starttime&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;starting&nbsp;time&nbsp;for&nbsp;indperiods&nbsp;in&nbsp;'HH:MM:SS'<br>
+set_time&nbsp;:&nbsp;bool<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;True,&nbsp;the&nbsp;measurement&nbsp;time&nbsp;will&nbsp;be&nbsp;plotted&nbsp;on<br>
+&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;x&nbsp;axis,&nbsp;else&nbsp;the&nbsp;sample&nbsp;number&nbsp;will&nbsp;be&nbsp;used<br>
+time_format&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;set_times&nbsp;=&nbsp;[i&nbsp;for&nbsp;i,&nbsp;val&nbsp;in&nbsp;enumerate(test_list)&nbsp;if&nbsp;val&nbsp;==&nbsp;None]&nbsp;e&nbsp;is&nbsp;True,&nbsp;which&nbsp;time&nbsp;format&nbsp;to&nbsp;use,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;default&nbsp;is&nbsp;'%d-%m&nbsp;%H:%M'<br>
+xlim&nbsp;:&nbsp;tuple&nbsp;of&nbsp;floats<br>
+&nbsp;&nbsp;&nbsp;&nbsp;limits&nbsp;of&nbsp;the&nbsp;x&nbsp;axis<br>
+ylim&nbsp;:&nbsp;tuple&nbsp;of&nbsp;floats<br>
+&nbsp;&nbsp;&nbsp;&nbsp;limits&nbsp;of&nbsp;the&nbsp;y&nbsp;axis<br>
+xlabel&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;of&nbsp;x&nbsp;axis<br>
+ylabel&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;of&nbsp;y&nbsp;axis<br>
+title&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;of&nbsp;plot<br>
+return_axes&nbsp;:&nbsp;bool<br>
+&nbsp;&nbsp;&nbsp;&nbsp;returns&nbsp;axes&nbsp;and&nbsp;figure&nbsp;handles<br>
+widget&nbsp;:&nbsp;bool<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;True,&nbsp;plot&nbsp;is&nbsp;used&nbsp;in&nbsp;a&nbsp;widget&nbsp;and<br>
+&nbsp;&nbsp;&nbsp;&nbsp;handles&nbsp;ylim&nbsp;differently</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>tt</strong> = &lt;mypysmps.util.timetransform.TimeTransform object&gt;</td></tr></table>
+</body></html>

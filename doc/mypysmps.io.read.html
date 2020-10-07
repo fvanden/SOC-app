@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module mypysmps.io.read</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="mypysmps.html"><font color="#ffffff">mypysmps</font></a>.<a href="mypysmps.io.html"><font color="#ffffff">io</font></a>.read</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/fvanden/Documents/BAS/Python/PSpy/mypysmps/io/read.py">/home/fvanden/Documents/BAS/Python/PSpy/mypysmps/io/read.py</a></font></td></tr></table>
+    <p><tt>#&nbsp;-*-&nbsp;coding:&nbsp;utf-8&nbsp;-*-<br>
+#################</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="gzip.html">gzip</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-determine_filetype"><strong>determine_filetype</strong></a>(filename)</dt><dd><tt>Return&nbsp;the&nbsp;filetype&nbsp;of&nbsp;a&nbsp;given&nbsp;file&nbsp;by&nbsp;examining&nbsp;the&nbsp;first&nbsp;few&nbsp;bytes.<br>
+&nbsp;<br>
+Adapted&nbsp;from&nbsp;pyart.io.auto_read.py&nbsp;script&nbsp;by&nbsp;:&nbsp;https://arm-doe.github.io/pyart/&nbsp;<br>
+&nbsp;<br>
+The&nbsp;following&nbsp;filetypes&nbsp;are&nbsp;detected:<br>
+&nbsp;<br>
+*&nbsp;'csv'<br>
+*&nbsp;'txt'<br>
+*&nbsp;'excel'<br>
+*&nbsp;'NETCDF3'<br>
+*&nbsp;'NETCDF4'<br>
+*&nbsp;'HDF4'<br>
+*&nbsp;'gzip'<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+filename&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Name&nbsp;of&nbsp;file&nbsp;to&nbsp;examine.<br>
+&nbsp;<br>
+Returns<br>
+-------<br>
+filetype&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Type&nbsp;of&nbsp;file.</tt></dd></dl>
+ <dl><dt><a name="-read"><strong>read</strong></a>(filename, fileorg='AIM', **kwargs)</dt><dd><tt>Read&nbsp;a&nbsp;SMPS&nbsp;file&nbsp;and&nbsp;return&nbsp;a&nbsp;SMPS&nbsp;object<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+filename&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;path&nbsp;and&nbsp;name&nbsp;of&nbsp;file&nbsp;to&nbsp;read<br>
+&nbsp;<br>
+fileorg&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;refers&nbsp;to&nbsp;the&nbsp;organisation&nbsp;of&nbsp;the&nbsp;file<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Returns<br>
+-------<br>
+smps&nbsp;:&nbsp;smps<br>
+&nbsp;&nbsp;&nbsp;&nbsp;mysmps.core.smps&nbsp;object</tt></dd></dl>
+</td></tr></table>
+</body></html>

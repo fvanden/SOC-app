@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 #################
+import warnings
 import datetime as dt
 
 from ..config import get_metadata
@@ -25,6 +26,7 @@ Revision history:   09.07.2020 - Created
                         for open ended kwargs addition
                     13.08.2020 - Added Empty
                     18.08.2020 - Added createTimeDate and findSample functions
+                    07.10.2020 - add_field added to ParticleSizer
 
 
 """
@@ -215,7 +217,74 @@ class ParticleSizer(object):
         else:
             print( ("%s is not a relevant input format"%(type)) )
             pass
+        
+
+    def add_field(self, fieldname, data, method = None, metadata = None):
+        """
+        Adds a new field to ParticleSizer object 
+
+        Parameters
+        ----------
+        fieldname : str
+            name of the field to add
             
+        data : list or numpy.ma.core.MaskedArray
+            a warning is emitted if the data does not have
+            the same dimensions as the data present in the
+            ParticleSizer object
+        
+        method : str
+            in case of filtered or adapted data, this allows
+            to describe the technique applied if the user
+            does not wish to add a whole metadata dictionary
+            
+        metadata : dict
+            a dictionary with metadata for the added field, 
+            if None, a dictionary from the default config file 
+            is loaded
+            
+        """
+        # check if field already exists in object
+        
+        if fieldname in self.data['variables']:
+            warnings.warn( ("field name %s already exists, field is overwritten...")%(fieldname) )
+            
+        # get metadata for field
+        
+        if metadata is None:
+            metadata = get_metadata(fieldname)
+            if metadata == {}:
+                metadata = {'units': '-', 'standard_name': fieldname, 'axis': '-', 'valid_min': None, 'valid_max': None, 'comment': None}
+        
+        if method is not None:
+            metadata['method'] = method
+            
+        # check if data has the right dimensions
+        
+        objectshape = self.data[self.data['variables'][0]]['data'].shape
+        datashape = data.shape
+        
+        if datashape == objectshape:
+            pass
+        elif (datashape[1], datashape[0]) == objectshape:
+            # try to match shape
+            warnings.warn("field data is translated to match existing field shape")
+            data = data.T
+        elif datashape[0] == objectshape[1]:
+            warnings.warn("only one dimension matches existing field shape: these dimensions are matched")
+            data = data.T
+        elif datashape[1] == objectshape[0]:
+            warnings.warn("only one dimension matches existing field shape: these dimensions are matched")
+            data = data.T
+        else:
+            warnings.warn("field data does not match existing field shape")
+        
+        metadata['data'] = data
+        
+        # add new field to object data
+        
+        self.data[fieldname] = metadata
+        self.data['variables'].append(fieldname)                
 
 
 
