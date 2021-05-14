@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #################
 import warnings
-import math
 import numpy as np
+#from matplotlib import cm
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import matplotlib.ticker as mtick
@@ -12,7 +12,7 @@ from matplotlib.dates import DateFormatter
 from matplotlib.ticker import LogFormatter
 import datetime as dt
 
-from ._cm import _smps_flo
+from ._cm import customcb
 from ..util.mathfuncs import roundup
 from ..config import get_figure_settings, get_field_limits, _DEFAULT_FIELD_LIMITS
 import mypysmps.util.timetransform as timetransform
@@ -119,6 +119,9 @@ class PSDisplay(object):
             ylabel : str
                 ylabel for plot, if not given the SMPS standard
                 label from the config file is used
+            clabel : str
+                clabel for colourbar, if not given, no claber is
+                used
             title : str
                 title for plot
             return_axes : bool
@@ -132,12 +135,17 @@ class PSDisplay(object):
         # get relevant kwargs
         indperiods = kwargs.get("periods",False)
         starttime = kwargs.get('starttime', None)
-
+        return_axes = kwargs.get("return_axes", False)
+        
         # get figure settings
         figdict = get_figure_settings('heatplot')
 
         # create figure
-        fig, ax = plt.subplots(figsize=figdict['size'])
+        if isinstance(return_axes, list):
+            fig = return_axes[0]
+            ax = return_axes[1]
+        else: 
+            fig, ax = plt.subplots(figsize=figdict['size'])
 
         # get plot data
         plotdata = self._smps.data[field]['data']
@@ -156,12 +164,11 @@ class PSDisplay(object):
         X, Y = np.meshgrid(x,y)
 
         # get colorbar
-        if 'colorbar' in kwargs:
-            colorbar = kwargs.get("colorbar")
-            cbar = cm.get_cmap(colorbar)
+        colorbar = kwargs.get("colorbar",'_smps_flo')
+        if colorbar[0] == '_':
+            cbar = mcolors.ListedColormap(customcb[colorbar])
         else:
-            # get custom colorbar
-            cbar = mcolors.ListedColormap(_smps_flo)
+            cbar = cm.get_cmap(colorbar)
 
 
         # plot data
@@ -169,7 +176,11 @@ class PSDisplay(object):
             warnings.simplefilter("ignore")
             c = plt.pcolormesh(Y,X,plotdata.T, cmap=cbar)
 
-        fig.colorbar(c, format=ticker.FuncFormatter(self.fmt))
+        if 'clabel' in kwargs:
+            mcbar = fig.colorbar(c, format=ticker.FuncFormatter(self.fmt), label = kwargs.get("clabel"))
+        else:
+            mcbar = fig.colorbar(c, format=ticker.FuncFormatter(self.fmt))
+        
 
         # set plot color to black
         ax.set_facecolor('black')
@@ -257,12 +268,15 @@ class PSDisplay(object):
         plt.clim(clim)
 
         # set title
-        title = kwargs.get("title", self._smps.metadata['Sample File'] )
+        try:
+            title = kwargs.get("title", self._smps.metadata['Sample File'] )
+        except:
+            title = kwargs.get("title", ' ')
+        
         plt.title(title)
 
-        # if return axes is True, return them
-        return_axes = kwargs.get("return_axes", False)
-        if return_axes is True:
+        # if return axes is True or list, return them
+        if return_axes is not False:
             return fig, ax
 
 
@@ -330,7 +344,7 @@ class PSDisplay(object):
             ylim = [get_field_limits(field)[0], ylim]
         if None in ylim:
             nloc = [i for i, val in enumerate(ylim) if val == None]
-            if len(cloc) == 2:
+            if len(nloc) == 2:
                 ylim = (np.min(plotdata), np.max(plotdata) )
             elif nloc == 0:
                 ylim = (np.nanmin(plotdata), ylim[1])
@@ -351,13 +365,10 @@ class PSDisplay(object):
         fig, ax = plt.subplots(figsize=figdict['size'])
 
         # get bins
-        bins = self.create_bins()
-
-        # take only bin widths
-        dwidths = bins[:,2] - bins[:,0]
+        bins, dwidths,_ = self._smps.create_bins()
 
         # create bar plot - take midpoint diameter of bins
-        ax.bar(x=bins[:,1], height = plotdata,width = dwidths, color = 'blue', edgecolor = 'white', align = 'edge')
+        ax.bar(x=bins, height = plotdata,width = dwidths, color = 'blue', edgecolor = 'white', align = 'edge')
 
         # add extra's if required
         if addD50:
@@ -397,10 +408,12 @@ class PSDisplay(object):
         # set axes names
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
-
+       
         # set title
-        title = kwargs.get("title", self._smps.metadata['Sample File'] + '  ' + 'Sample: %d'%(sample+1) )
-        plt.title(title)
+        try:
+            title = kwargs.get("title", self._smps.metadata['Sample File'] + '  ' + 'Sample: %d'%(sample+1) )
+        except:
+            title = kwargs.get("title", ' ')
 
         # add legend if applicable
         if addlegend:
@@ -494,7 +507,10 @@ class PSDisplay(object):
             time_format = kwargs.get("time_format",'%d-%m %H:%M')
         xlabel = kwargs.get("xlabel", self._smps.time['axis'])
         ylabel = kwargs.get("ylabel", fielddata['axis'])
-        title = kwargs.get("title", self._smps.metadata['Sample File'] )
+        try:
+            title = kwargs.get("title", self._smps.metadata['Sample File'] )
+        except:
+            title = ' '
         addlegend = kwargs.get("add_legend", False)
         legend_loc = kwargs.get("legend_loc", 'best')
         return_axes = kwargs.get("return_axes", False)
@@ -559,29 +575,32 @@ class PSDisplay(object):
             #ax.plot([indicatorline, indicatorline],[ylim[0], ylim[1]],'r--')
 
         if set_time is True:
-            datetimes = []
-            for i in range(0, len(self._smps.time['data'])):
-                datetimes.append( self._smps.date['data'][i] + ' ' + self._smps.time['data'][i] )
+            try:
+                datetimes = []
+                for i in range(0, len(self._smps.time['data'])):
+                    datetimes.append( self._smps.date['data'][i] + ' ' + self._smps.time['data'][i] )
 
-            x_values = [dt.datetime.strptime(d,"%d/%m/%Y %H:%M:%S") for d in datetimes]
-            newlabels = [dt.datetime.strftime(d, time_format) for d in x_values]
+                x_values = [dt.datetime.strptime(d,"%d/%m/%Y %H:%M:%S") for d in datetimes]
+                newlabels = [dt.datetime.strftime(d, time_format) for d in x_values]
 
-            #pos = [int(item.get_position()[0]) for item in ax.get_xticklabels()]
-            #labels = [newlabels[0]] + list(np.asarray(newlabels)[pos[1:-1]])  + [newlabels[-1]]
-            labelnums = np.ceil(np.arange(0,roundup(len(newlabels))+1, roundup(len(newlabels))/8))
-            labelnums = [int(d) for d in labelnums]
-            labels = []
+                #pos = [int(item.get_position()[0]) for item in ax.get_xticklabels()]
+                #labels = [newlabels[0]] + list(np.asarray(newlabels)[pos[1:-1]])  + [newlabels[-1]]
+                labelnums = np.ceil(np.arange(0,roundup(len(newlabels))+1, roundup(len(newlabels))/8))
+                labelnums = [int(d) for d in labelnums]
+                labels = []
 
-            for i in range(0, len(labelnums)):
-                try:
-                    labels.append(newlabels[labelnums[i]])
-                except IndexError:
-                    labels.append(newlabels[-1])
+                for i in range(0, len(labelnums)):
+                    try:
+                        labels.append(newlabels[labelnums[i]])
+                    except IndexError:
+                        labels.append(newlabels[-1])
 
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                ax.set_xticks(labelnums)
-                ax.set_xticklabels(labels,rotation = 45)
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    ax.set_xticks(labelnums)
+                    ax.set_xticklabels(labels,rotation = 45)
+            except AttributeError:
+                pass
 
         # set labels
         plt.xlabel(xlabel)
@@ -598,37 +617,6 @@ class PSDisplay(object):
         if return_axes is True:
             return fig, ax
 
-
-    def create_bins(self,):
-        """
-        Creates bins for histogram plot
-
-        Parameters
-        ----------
-
-        See Also
-        --------
-
-        """
-        # create empty matrix
-        bins = np.empty((np.asarray(self._smps.diameter['data']).shape[0], 3))
-
-        # obtain number of channels per decade
-        cpd = float(self._smps.metadata['Channels/Decade'])
-
-        # fill bins with NaNs so that bins fail if method fails
-        bins.fill(np.NaN)
-
-        # fill bins with diameters
-        bins[:, 1] = np.asarray(self._smps.diameter['data'])
-        bins[0, 0] = self._smps.diameter['valid_min']
-        bins[-1, -1] = self._smps.diameter['valid_max']
-
-        for i in range(bins.shape[0] - 1):
-            bins[i, 2] = round(math.pow(10, np.log10(bins[i, 0]) + 1./cpd), 4)
-            bins[i+1, 0] = bins[i, 2]
-
-        return bins
 
     def fmt(self,x, pos):
         """

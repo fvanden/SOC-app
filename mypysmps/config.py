@@ -69,6 +69,7 @@ def load_config(filename = None):
     global _DEFAULT_FIGURE_SETTINGS
     global _INSTRUMENT_SETTINGS
     global _INSTRUMENT_HEADERS
+    global _CONVERSIONS
     
     #global _FILE_SPECIFIC_METADATA
     #global _FIELD_MAPPINGS
@@ -86,6 +87,7 @@ def load_config(filename = None):
     _DEFAULT_FIGURE_SETTINGS = cfile.DEFAULT_FIGURE_SETTINGS
     _INSTRUMENT_SETTINGS = cfile.INSTRUMENT_SETTINGS
     _INSTRUMENT_HEADERS = cfile.INSTRUMENT_HEADERS
+    _CONVERSIONS = cfile.CONVERSIONS
     return
 
 # load the configuration from the enviromental parameter if it is set

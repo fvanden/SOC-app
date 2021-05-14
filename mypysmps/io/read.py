@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 #################
 import gzip
-import netCDF4
 
-from .csv_read import read_aim_csv, read_opc_csv
+from ..core.met import MET
+from .csv_read import read_aim_csv, read_opc_csv, read_csv
 from .txt_read import read_aim_txt, read_opc_txt
+from .nc_read import read_mpl
 #################
 """
 mypysmps.io.read
@@ -22,6 +23,7 @@ Created on Thu Jul 9 14:37 2020
 Revision history:   09.07.2020 - Created
                     20.07.2020 - filetype added to allow for different
                     file organisations
+                    30.09.2020 - metdata added
 
 
 
@@ -71,8 +73,16 @@ def read(filename, fileorg = 'AIM', **kwargs):
             return read_aim_csv(filename, fileorg = fileorg, **kwargs)
         elif fileorg == 'OPC':
             return read_opc_csv(filename, fileorg = fileorg, **kwargs)
+        elif fileorg == 'MET':
+            vardict = read_csv(filename, fileorg = fileorg, **kwargs)
+            MET(**vardict)
+            
         else:
-            raise TypeError('Unknown or unsupported file organisation: ' + fileorg)
+            try:
+                vardict = read_csv(filename, fileorg = fileorg, **kwargs)
+                return vardict
+            except:
+                raise TypeError('Unknown or unsupported file organisation: ' + fileorg)
     
     # TXT
     if filetype == 'TXT':
@@ -82,6 +92,10 @@ def read(filename, fileorg = 'AIM', **kwargs):
             return read_opc_txt(filename, fileorg = fileorg, **kwargs)
         else:
             raise TypeError('Unknown or unsupported file organisation: ' + fileorg)
+            
+    if filetype == "NETCDF3" or filetype == "NETCDF4":
+        if fileorg == 'MPL':
+            return read_mpl(filename, fileorg = fileorg, **kwargs)
 
         
     raise TypeError('Unknown or unsupported file format: ' + filetype)

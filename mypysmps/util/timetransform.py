@@ -12,6 +12,18 @@ Created on Fri Jun 17 17:02:46 2016
 
 @author: fvanden
 
+Content:
+    Class TimeTransform
+        convertTime
+        commonTimeFormat
+        findNearestDate
+        findSameDate
+        findSameDate_Mult
+        findCommonDate
+        withinDate
+        groupbyDate
+        seperateDateTime
+
 Revision history:   17.06.2016 - Created
                     07.07.2016 - findSameDate and findSameDate_Mult added,
                     output_format added to all findDate functions so user can 
@@ -74,8 +86,11 @@ class TimeTransform():
         --------
         datetime.datetime
         """
+
         time_list_re = [datetime.strptime(x, inputtimeform) for x in time_list]
         output_time = [datetime.strftime(x, outputtimeform) for x in time_list_re]
+
+                    
         
         return output_time            
         
@@ -456,6 +471,39 @@ class TimeTransform():
             return grouped_data, grouped_time
         else:
             return grouped_data
+        
+        
+    def seperateDateTime(self, datetime, inputformat, outputtimeformat, outputdatformat):
+        """
+        Separates a DateTime list into a date list and a time list
+        
+        Parameters
+        ----------
+        
+        datetime : list of strings
+            input list with datetimes
+            
+        inputformat : str
+            the datetime format of the input list (i.e. '%Y.%m.%d %H:%M:%S')
+            
+        outputtimeformat : str
+            the time format of the output str (i.e. '%H:%M:%S')
+            
+        outputdateformat : str
+            the date format of the output str (i.e. '%Y.%m.%d')
+            
+        Returns
+        -------
+        
+        times : list of strings
+            list with times
+            
+        dates : list of strings
+            list with dates
+            
+        """
+        
+        return times, dates
              
             
             

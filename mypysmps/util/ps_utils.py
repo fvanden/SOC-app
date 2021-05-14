@@ -4,6 +4,7 @@ import numpy as np
 import datetime as dt
 import copy
 
+from .basic import conversion
 from .timetransform import TimeTransform
 tt = TimeTransform()
 #################
@@ -151,7 +152,7 @@ def stack_ps(ps1, ps2, keep_unique = False, fill_time = False, message = True):
             if attribute in ps2.__dict__.keys():
                 afield = getattr(new_ps, attribute)
                 if attribute == 'diameter':
-                    st11, st12, st21, st22, diamlist = check_diameters(ps1.diameter['data'], ps2.diameter['data'])
+                    st11, st12, st21, st22, diamlist = check_diameters(ps1.diameter['data'], ps2.diameter['data'], ps1.instrument_type)
                               
                     for var in new_ps.data['variables']:
                         if fill_time is True:
@@ -224,8 +225,7 @@ def stack_ps(ps1, ps2, keep_unique = False, fill_time = False, message = True):
             if attribute in ps1.__dict__.keys():
                 afield = getattr(new_ps, attribute)
                 if attribute == 'diameter':
-                    st11, st12, st21, st22, diamlist = check_diameters(ps1.diameter['data'], ps2.diameter['data'])
-                              
+                    st11, st12, st21, st22, diamlist = check_diameters(ps1.diameter['data'], ps2.diameter['data'], ps1.instrument_type)
                     for var in new_ps.data['variables']:
                         if fill_time is True:
                             add = np.ma.zeros((ps1.data[var]['data'].shape[0],len(date_list))) 
@@ -290,13 +290,198 @@ def stack_ps(ps1, ps2, keep_unique = False, fill_time = False, message = True):
                     delattr(new_ps, attribute)
                     
     new_ps.sample['data'] = np.arange(1.0, len(new_ps.datetime['data'])+1)
+    new_ps.instrument_type = ps1.instrument_type.split('_')[0] + '_concatenated'
     
     if message:
         print('filltime: ', fill_time)
     
     return new_ps
 
-def check_diameters(diameter1, diameter2):
+def convert_units(data, typec,fromm, to):
+    """
+    Converts data from one unit to another
+    
+    Parameters
+    ----------
+    data : list
+        list of data values
+        
+    typec : string
+        type of conversion (i.e. temporal or units)
+        
+    fromm : string
+        units to convert from
+        
+    to : string
+        units to convert to
+        
+    Returns
+    -------
+    cdata : list
+        converted data
+    """
+    cdata = []
+    
+    if typec == 'OPC_temporal':
+        cdata = OPCtimetransform(data, to)
+    elif typec == 'temporal':
+        if isinstance(data[0], float):
+            data = [str(i) for i in data]
+        cdata = tt.convertTime(data, fromm, to)
+    elif typec == 'units':
+        for measure in data:
+            cdata.append(conversion(measure, fromm, to))
+    else:
+        raise TypeError('Unknown or unsupported conversion tyoe: ' + typec)
+        cdata = data
+            
+    return cdata
+
+def OPCtimetransform(data, to):
+    """
+    OPC times go from minutes 1..60 and seconds 1..60
+    Python can't handle times with minutes 60+ or 
+    floating point values with leading zeros. Here
+    values are rounded (i.e. 146001 to 150001.)
+    
+    Parameters
+    ----------
+    data : list of str
+        list of data values to be converted
+        
+    to : str
+        time format (i.e. '%H:%M:%S')
+        
+    Returns
+    -------
+    outtimes : list of str
+        list of time values with transformed formatting
+    """
+    
+    remove_times = []
+    outtimes = []
+    times = {'ms':[],'SS':[],'MM':[],'HH':[]}
+
+    for i in range(0, len(data)):
+        times['HH'] = 0
+        times['MM'] = 0
+        times['SS'] = 0
+        times['ms'] = 0
+
+        item = data[i]
+        
+        try:
+            if len(item.split('.')[1]) < 2:
+                item += '0'
+        except IndexError:
+            item += '.00'
+        if len(item) < 9:
+            item = item.zfill(9)
+        if int(item[:2]) > 23:
+            item = '0' + item
+            
+        # remove items with extra zero (2319010.00 to 231910)
+        if len(item) > 9:
+            olditem = item
+            newitem = item[:4] + item[5:]
+            print( ('Repairing strange value %s into %s')%(olditem, newitem) )
+            item = newitem
+        else:
+            pass
+        try:
+            md = dt.datetime.strptime(item, "%H%M%S.%f")
+            
+        # round off items which exceed 59 minutes or 59 seconds 
+        # (i.e. 146001 to 150001.)
+        except ValueError:
+            
+            try:
+                times['HH'] = int(item[0:2])
+                times['MM'] = int(item[2:4])
+                times['SS'] = int(item[4:6])
+                times['ms'] = int(item[7:9])
+            except ValueError:
+                print(i, item)
+
+            if times['SS'] > 59:
+                times['MM'] += 1
+                times['SS'] = 0
+            if times['MM'] > 59:
+                times['HH'] += 1
+                times['MM'] = 0
+            # discard items which exceed 23 hours
+            if times['HH'] > 23:
+                times['HH'] = 23
+                print( ('resetting value %s')%(item) )
+            
+
+            md = dt.datetime(1900,1,1,times['HH'], times['MM'], times['SS']) 
+
+                
+        outtimes.append( dt.datetime.strftime(md, to) )
+
+    return outtimes
+
+def OPCtimetransformOld(data, to):
+    """
+    OPC times go from minutes 1..60 and seconds 1..60
+    Python can't handle times with minutes 60+ or 
+    floating point values with leading zeros. Here
+    one minute and one second is subtracted from each
+    value.
+    
+    Parameters
+    ----------
+    data : list of str
+        list of data values to be converted
+        
+    to : str
+        time format (i.e. '%H:%M:%S')
+        
+    Returns
+    -------
+    outtimes : list of str
+        list of time values with transformed formatting
+    """
+    outtimes = []
+    
+    times = {
+        'ms':[],
+        'SS':[],
+        'MM':[],
+        'HH':[]
+    }
+    for i in range(0, len(data)):
+        item = data[i]
+        try:       
+            times['HH'].append(int(item[0:2]))
+            times['MM'].append(int(item[2:4]))
+            times['SS'].append(int(item[4:6]))
+            times['ms'].append(int(item[7:9]))
+        except ValueError:
+            # strange value 2319010.00 in 201129 file...
+            olditem = item
+            newitem = item[:4] + item[4+1:]
+            print( ('Repairing strange value %s into %s')%(olditem, newitem) )
+            try:
+                times['HH'].append(int(newitem[0:2]))
+                times['MM'].append(int(newitem[2:4]))
+                times['SS'].append(int(newitem[4:6]))
+                times['ms'].append(int(newitem[7:9]))
+            except ValueError:
+                print(newitem)
+
+    # OPC times go up to 60 minutes. This is corrected by moving one minute
+    times['MM'] = [max(0,x-1) for x in times['MM']]
+    times['SS'] = [max(0,x-1) for x in times['SS']]
+
+    for i in range(0, len(data)):
+        md = dt.datetime(1900,1,1,times['HH'][i], times['MM'][i], times['SS'][i]) 
+        outtimes.append( dt.datetime.strftime(md, to))
+
+    return outtimes
+
+def check_diameters(diameter1, diameter2, instrument_type):
     """
     """
     
@@ -321,6 +506,9 @@ def check_diameters(diameter1, diameter2):
     diamlist = np.append(diameter1, diameter2)
     diamlist.sort()
     diamlist = np.unique(diamlist)
+    
+    if instrument_type == 'OPC' or instrument_type == 'OPC_concatenated':
+        diamlist = diamlist[:-1]
     
     st11 = abs(diamlist - diameter1[0]).argmin()
     st12 = abs(diamlist - diameter1[-1]).argmin()+1
