@@ -3,12 +3,9 @@ matplotlib
 ipywidgets
 netCDF4
 scipy
-pandas==0.25.1
-seaborn
-statsmodels
-joblib
-xarray
-oauth2client
-gspread
-pydrive
+#pandas==0.25.1
+#seaborn
+#statsmodels
+#joblib
+#xarray
 voila
