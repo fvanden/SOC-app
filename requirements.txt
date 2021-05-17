@@ -3,6 +3,8 @@ matplotlib
 ipywidgets
 netCDF4
 scipy
+gzip
+pickle
 #pandas==0.25.1
 #seaborn
 #statsmodels
