@@ -518,6 +518,16 @@ class PSDisplay(object):
         legend_loc = kwargs.get("legend_loc", 'best')
         return_axes = kwargs.get("return_axes", False)
 
+        # create figure
+        if isinstance(return_axes, list):
+            fig = return_axes[0]
+            try:
+                ax = return_axes[1]
+            except IndexError:
+                ax = plt.gca()
+        else:
+            fig, ax = plt.subplots(figsize=figdict['size'])
+
         # get correct xlim data
         xlim = kwargs.get("xlim", [0,len(self._smps.time['data'])])
         try:
@@ -533,7 +543,7 @@ class PSDisplay(object):
         figdict = get_figure_settings('timeplot')
 
         # create figure
-        fig, ax = plt.subplots(figsize=figdict['size'])
+        #fig, ax = plt.subplots(figsize=figdict['size'])
 
         # get plot data
 
