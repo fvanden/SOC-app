@@ -136,15 +136,18 @@ class PSDisplay(object):
         indperiods = kwargs.get("periods",False)
         starttime = kwargs.get('starttime', None)
         return_axes = kwargs.get("return_axes", False)
-        
+
         # get figure settings
         figdict = get_figure_settings('heatplot')
 
         # create figure
         if isinstance(return_axes, list):
             fig = return_axes[0]
-            ax = return_axes[1]
-        else: 
+            try:
+                ax = return_axes[1]
+            except IndexError:
+                ax = plt.gca()
+        else:
             fig, ax = plt.subplots(figsize=figdict['size'])
 
         # get plot data
@@ -180,7 +183,7 @@ class PSDisplay(object):
             mcbar = fig.colorbar(c, format=ticker.FuncFormatter(self.fmt), label = kwargs.get("clabel"))
         else:
             mcbar = fig.colorbar(c, format=ticker.FuncFormatter(self.fmt))
-        
+
 
         # set plot color to black
         ax.set_facecolor('black')
@@ -220,7 +223,7 @@ class PSDisplay(object):
         # set axes labels and other
         set_time = kwargs.get("set_time", True)
         if set_time is True:
-            
+
             datetimes = self._smps.createTimeDate(output=True)
             #datetimes = []
             #for i in range(0, len(self._smps.time['data'])):
@@ -272,7 +275,7 @@ class PSDisplay(object):
             title = kwargs.get("title", self._smps.metadata['Sample File'] )
         except:
             title = kwargs.get("title", ' ')
-        
+
         plt.title(title)
 
         # if return axes is True or list, return them
@@ -408,7 +411,7 @@ class PSDisplay(object):
         # set axes names
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
-       
+
         # set title
         try:
             title = kwargs.get("title", self._smps.metadata['Sample File'] + '  ' + 'Sample: %d'%(sample+1) )
