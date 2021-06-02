@@ -38,8 +38,8 @@ def getDefaultValues(IDict,instr_select):
     """
     instrument = IDict[instr_select]
     if instrument is None:
-        variable_list =['this','that','some more']
-        default_value = 'this'
+        variable_list =['var1','var2','var3']
+        default_value = 'var1'
         diameter_list = [0,1,2,3]
         diamdefval = 0
         maxSample = 100
@@ -48,7 +48,7 @@ def getDefaultValues(IDict,instr_select):
 
         variable_list = np.append(instrument.data['variables'],list(instrument.__dict__.keys()))
         maxSample = len(instrument.sample['data'])-1
-        
+
         diameter_list = instrument.diameter['data']
         diamdefval = diameter_list[0]
 
@@ -61,21 +61,19 @@ def getDefaultValues(IDict,instr_select):
         else:
             default_value = 'total_concentration'
             fileorg = 'AIM'
-        
+
     return fileorg, default_value, variable_list, diameter_list, diamdefval, maxSample
-    
+
 
 def update_var_widget(IDict,instr_select):
     """
     """
-    
+
     fileorg, default_value, variable_list,maxSample = getDefaultValues(IDict, instr_select)
-    
+
     variable.set_trait('options', variable_list)
     variable.set_trait('value',default_value)
-    
+
     sample.set_trait('max',maxSample)
-    
+
     return variable
-
-
